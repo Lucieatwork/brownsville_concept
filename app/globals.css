@@ -1,8 +1,43 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Command center / smart city shell (aligned with concept UI references + PRD) */
+  --shell-bg: #0a0c14;
+  --map-fallback-bg: #05070a;
+  --text-primary: #ffffff;
+  --text-secondary: #d1d5db;
+  --text-muted: #8e9297;
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --surface-glass: rgba(255, 255, 255, 0.06);
+  --nav-pill-active: #374151;
+  --accent-trend: #00c853;
+  --accent-selection: #d4ff00;
+
+  /*
+   * Activity heat — style guide: Tertiary — crimson (DM) + Danger (bright red / rose).
+   * Rose / pink ramp for map heat + pin hover; confirm exact swatches in Figma when tokens export.
+   */
+  --heat-core-deep: #3a1a32;
+  --heat-core-mid: #9f1239;
+  --heat-hot: #f43f5e;
+
+  /* Map pins: built from shell + text so they track the command center palette */
+  --map-pin-heat-fill: color-mix(in srgb, var(--text-primary) 93%, transparent);
+  --map-pin-heat-inner: color-mix(in srgb, var(--shell-bg) 78%, transparent);
+  --map-pin-outline: color-mix(in srgb, #000000 35%, transparent);
+  --map-pin-outline-soft: color-mix(in srgb, #000000 25%, transparent);
+  /* Hover pin body: same rose as heat peaks; rim ties to mid pink (not plain white). */
+  --map-pin-hover-fill: var(--heat-hot);
+  --map-pin-hover-outline: color-mix(in srgb, var(--heat-core-mid) 55%, var(--text-primary) 45%);
+  --map-pin-hover-inner-fill: color-mix(in srgb, var(--text-primary) 88%, var(--heat-hot) 12%);
+  --map-pin-hover-inner-outline: color-mix(in srgb, var(--heat-hot) 35%, var(--text-primary) 65%);
+  --map-pin-muted-fill: color-mix(in srgb, #000000 35%, transparent);
+  --map-pin-muted-stroke: color-mix(in srgb, var(--text-primary) 45%, transparent);
+  --map-pin-muted-inner-fill: color-mix(in srgb, var(--text-primary) 55%, transparent);
+  --map-pin-muted-inner-stroke: color-mix(in srgb, var(--text-primary) 35%, transparent);
+
+  --background: var(--shell-bg);
+  --foreground: var(--text-primary);
 }
 
 @theme inline {
@@ -12,15 +47,8 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
 }

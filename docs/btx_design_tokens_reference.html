@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTX Design System — Token Reference</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --ink: #0c0c0c;
+    --ink-2: #38342a;
+    --ink-3: #5c5648;
+    --ink-4: #847c66;
+    --surface: #faf8f2;
+    --surface-2: #eee9dc;
+    --border: #d4cebc;
+    --blue: #2c60f0;
+    --blue-light: #e6ecfd;
+    --mint: #00e8a0;
+    --mint-light: #dafef3;
+    --crimson: #e8184e;
+    --crimson-light: #fff0f4;
+    --gold: #d4a800;
+    --gold-light: #fefde8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--ink);
+    background: #fff;
+    padding: 48px 56px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  /* ── Cover ── */
+  .cover {
+    padding: 40px 0 36px;
+    border-bottom: 2px solid var(--ink);
+    margin-bottom: 40px;
+  }
+  .cover-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    margin-bottom: 8px;
+  }
+  .cover-title {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -.02em;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .cover-sub {
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+  .cover-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+  }
+  .meta-item { font-size: 11px; color: var(--ink-3); }
+  .meta-item strong { color: var(--ink); font-weight: 500; }
+
+  /* ── Sections ── */
+  .section { margin-bottom: 44px; }
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid var(--ink);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+  }
+  .section-count {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--ink-3);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 1px 7px;
+    border-radius: 10px;
+  }
+
+  /* ── Tables ── */
+  table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  thead tr { background: var(--surface-2); }
+  th {
+    text-align: left;
+    padding: 6px 10px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    border: 1px solid var(--border);
+  }
+  td {
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  tr:nth-child(even) td { background: var(--surface); }
+  .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-2);
+  }
+  .dim { color: var(--ink-4); }
+
+  /* ── Swatches ── */
+  .swatch-cell {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    border: 1px solid rgba(0,0,0,.1);
+    flex-shrink: 0;
+  }
+  .swatch-pair {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .swatch-label { font-size: 10px; }
+
+  /* ── Ramp rows ── */
+  .ramp-strip {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 14px;
+  }
+  .ramp-block {
+    flex: 1;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .ramp-color { height: 28px; }
+  .ramp-label {
+    font-size: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--ink-4);
+    text-align: center;
+    padding: 2px 0;
+  }
+  .ramp-name {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--ink-3);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  /* ── Spacing viz ── */
+  .spacing-bar-wrap { display: flex; align-items: center; gap: 8px; }
+  .spacing-bar {
+    height: 10px;
+    background: var(--blue-light);
+    border: 1px solid #b4c6fa;
+    border-radius: 2px;
+  }
+
+  /* ── Radius viz ── */
+  .radius-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .radius-block { text-align: center; }
+  .radius-square {
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--blue-light);
+    border: 1.5px solid #b4c6fa;
+    margin-bottom: 4px;
+  }
+  .radius-label { font-size: 9px; font-family: 'JetBrains Mono', monospace; color: var(--ink-3); }
+
+  /* ── Type specimens ── */
+  .type-specimen { margin-bottom: 6px; }
+
+  /* ── Category label ── */
+  .cat-label {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    background: var(--surface-2);
+    padding: 3px 10px;
+    border-left: 3px solid var(--border);
+  }
+
+  /* ── Mode pills ── */
+  .mode-lm {
+    display: inline-block;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: #faf8f2;
+    border: 1px solid #d4cebc;
+    color: #38342a;
+    margin-right: 3px;
+  }
+  .mode-dm {
+    display: inline-block;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: #1c1a14;
+    border: 1px solid #38342a;
+    color: #faf8f2;
+  }
+
+  /* ── Scope tags ── */
+  .scope {
+    display: inline-block;
+    font-size: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--ink-3);
+    margin-right: 2px;
+  }
+
+  /* ── Usage note ── */
+  .usage { font-size: 10px; color: var(--ink-4); font-style: italic; }
+
+  /* ── Page breaks ── */
+  @media print {
+    body { padding: 32px 40px; }
+    .page-break { page-break-before: always; }
+    .no-break { page-break-inside: avoid; }
+    a { text-decoration: none; }
+  }
+
+  /* ── Cursor usage box ── */
+  .cursor-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-bottom: 28px;
+    font-size: 11px;
+    color: var(--ink-3);
+    line-height: 1.7;
+  }
+  .cursor-box strong { color: var(--ink); font-weight: 500; }
+  .cursor-box code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    background: var(--surface-2);
+    padding: 1px 4px;
+    border-radius: 2px;
+    color: var(--ink-2);
+  }
+</style>
+</head>
+<body>
+
+<!-- Cover -->
+<div class="cover">
+  <div class="cover-eyebrow">BTX · Digital Twin PoC</div>
+  <div class="cover-title">Design System — Token & Style Reference</div>
+  <div class="cover-sub">Variables, paint styles, and text styles for use in Cursor / code</div>
+  <div class="cover-meta">
+    <div class="meta-item"><strong>Typeface</strong> Montserrat</div>
+    <div class="meta-item"><strong>Variables</strong> 135</div>
+    <div class="meta-item"><strong>Paint styles</strong> 19</div>
+    <div class="meta-item"><strong>Text styles</strong> 14</div>
+    <div class="meta-item"><strong>Modes</strong> Light + Dark</div>
+    <div class="meta-item"><strong>Base unit</strong> 4px grid</div>
+  </div>
+</div>
+
+<!-- Cursor usage note -->
+<div class="cursor-box">
+  <strong>Using this reference in Cursor:</strong> Use token names as variable names in your CSS/Tailwind config. For semantic tokens, switch the value based on the active theme (e.g. <code>color/surface/page-bg</code> → <code>#FAF8F2</code> in light mode, <code>#0C0C0C</code> in dark). Spacing tokens are multiples of <code>4px</code>. Border radius tokens are scoped to corner radius only. Typography variables cover size and line-height; all use Montserrat with weights 400 / 500 / 600 / 700.
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     1. COLOR PRIMITIVES
+════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-title">1 — Color / Primitives</span>
+    <span class="section-count">47 variables · single value mode</span>
+  </div>
+  <p class="usage" style="margin-bottom:14px">Raw color ramps. Reference these from semantic tokens. Do not apply directly to components.</p>
+
+  <!-- Blue ramp -->
+  <div class="ramp-name">Electric Blue</div>
+  <div class="ramp-strip">
+    <div class="ramp-block"><div class="ramp-color" style="background:#E6ECFD"></div><div class="ramp-label">/50</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#B4C6FA"></div><div class="ramp-label">/100</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#4070F0"></div><div class="ramp-label">/200</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#2C60F0;outline:2px solid #2C60F0;outline-offset:-2px"></div><div class="ramp-label">/300 ★</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#1A50E8"></div><div class="ramp-label">/400</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#1038B4"></div><div class="ramp-label">/500</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#0A2480"></div><div class="ramp-label">/600</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#04144C"></div><div class="ramp-label">/700</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#020824"></div><div class="ramp-label">/800</div></div>
+  </div>
+
+  <!-- Mint ramp -->
+  <div class="ramp-name">Mint</div>
+  <div class="ramp-strip">
+    <div class="ramp-block"><div class="ramp-color" style="background:#DAFEF3"></div><div class="ramp-label">/50</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#A0FAE0"></div><div class="ramp-label">/100</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#50F2C4"></div><div class="ramp-label">/200</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#00E8A0;outline:2px solid #00E8A0;outline-offset:-2px"></div><div class="ramp-label">/300 ★</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#00BA80"></div><div class="ramp-label">/400</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#008860"></div><div class="ramp-label">/500</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#005840"></div><div class="ramp-label">/600</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#003028"></div><div class="ramp-label">/700</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#001814"></div><div class="ramp-label">/800</div></div>
+  </div>
+
+  <!-- Crimson ramp -->
+  <div class="ramp-name">Crimson</div>
+  <div class="ramp-strip">
+    <div class="ramp-block"><div class="ramp-color" style="background:#FFF0F4"></div><div class="ramp-label">/50</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#FCC8D7"></div><div class="ramp-label">/100</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#F56E9B"></div><div class="ramp-label">/200</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#EF3C68"></div><div class="ramp-label">/300</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#E8184E;outline:2px solid #E8184E;outline-offset:-2px"></div><div class="ramp-label">/400 ★</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#B90E3C"></div><div class="ramp-label">/500</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#87092C"></div><div class="ramp-label">/600</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#55051B"></div><div class="ramp-label">/700</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#2A020D"></div><div class="ramp-label">/800</div></div>
+  </div>
+
+  <!-- Gold ramp -->
+  <div class="ramp-name">Gold</div>
+  <div class="ramp-strip">
+    <div class="ramp-block"><div class="ramp-color" style="background:#FEFDE8"></div><div class="ramp-label">/50</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#FDF880"></div><div class="ramp-label">/100</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#F8E840"></div><div class="ramp-label">/200</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#EED000"></div><div class="ramp-label">/300</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#D4A800;outline:2px solid #D4A800;outline-offset:-2px"></div><div class="ramp-label">/400 ★</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#A87800"></div><div class="ramp-label">/500</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#7C5400"></div><div class="ramp-label">/600</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#543600"></div><div class="ramp-label">/700</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#301E00"></div><div class="ramp-label">/800</div></div>
+  </div>
+
+  <!-- Warm Neutral ramp -->
+  <div class="ramp-name">Warm Neutral</div>
+  <div class="ramp-strip">
+    <div class="ramp-block"><div class="ramp-color" style="background:#FFFFFF;border:1px solid #e0e0e0"></div><div class="ramp-label">white</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#FAF8F2"></div><div class="ramp-label">/50</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#EEE9DC"></div><div class="ramp-label">/100</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#D4CEBC"></div><div class="ramp-label">/200</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#B0A890"></div><div class="ramp-label">/300</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#847C66"></div><div class="ramp-label">/400</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#5C5648"></div><div class="ramp-label">/500</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#38342A"></div><div class="ramp-label">/600</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#1C1A14"></div><div class="ramp-label">/700</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#0C0C0C"></div><div class="ramp-label">/800</div></div>
+    <div class="ramp-block"><div class="ramp-color" style="background:#000000"></div><div class="ramp-label">black</div></div>
+  </div>
+  <p class="usage">★ = LM base value for brand color</p>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     2. COLOR SEMANTIC
+════════════════════════════════════════════════════ -->
+<div class="section page-break">
+  <div class="section-header">
+    <span class="section-title">2 — Color / Semantic</span>
+    <span class="section-count">28 variables · Light Mode + Dark Mode</span>
+  </div>
+  <p class="usage" style="margin-bottom:14px">Apply these to components. Switch mode at the theme level — never hardcode primitive hex values in components.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:36%">Token name</th>
+        <th style="width:32%">Light Mode</th>
+        <th style="width:32%">Dark Mode</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="3" class="cat-label">Brand</td></tr>
+      <tr>
+        <td class="mono">color/brand/primary</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#2C60F0"></div><span class="mono">#2C60F0</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#2C60F0"></div><span class="mono">#2C60F0</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/brand/primary-hover</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#1A50E8"></div><span class="mono">#1A50E8</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#4070F0"></div><span class="mono">#4070F0</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/brand/secondary</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#00E8A0"></div><span class="mono">#00E8A0</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#00E8A0"></div><span class="mono">#00E8A0</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/brand/tertiary</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#E8184E"></div><span class="mono">#E8184E</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#EF3C68"></div><span class="mono">#EF3C68</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/brand/accent</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#D4A800"></div><span class="mono">#D4A800</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#EED000"></div><span class="mono">#EED000</span></div></td>
+      </tr>
+
+      <tr><td colspan="3" class="cat-label">Surface</td></tr>
+      <tr>
+        <td class="mono">color/surface/page-bg</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#FAF8F2;border:1px solid #d4cebc"></div><span class="mono">#FAF8F2</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#0C0C0C"></div><span class="mono">#0C0C0C</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/surface/surface</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#EEE9DC"></div><span class="mono">#EEE9DC</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#1C1A14"></div><span class="mono">#1C1A14</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/surface/surface-raised</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#FFFFFF;border:1px solid #d4cebc"></div><span class="mono">#FFFFFF</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#38342A"></div><span class="mono">#38342A</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/surface/border</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#D4CEBC"></div><span class="mono">#D4CEBC</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#38342A"></div><span class="mono">#38342A</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/surface/border-strong</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#B0A890"></div><span class="mono">#B0A890</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#5C5648"></div><span class="mono">#5C5648</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/surface/pure-white</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#FFFFFF;border:1px solid #d4cebc"></div><span class="mono">#FFFFFF</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#FFFFFF;border:1px solid #555"></div><span class="mono">#FFFFFF</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/surface/pure-dark</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#000000"></div><span class="mono">#000000</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#000000"></div><span class="mono">#000000</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/surface/overlay</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#000000"></div><span class="mono">#000000</span> <span class="dim">— apply with opacity</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#000000"></div><span class="mono">#000000</span></div></td>
+      </tr>
+
+      <tr><td colspan="3" class="cat-label">Text</td></tr>
+      <tr>
+        <td class="mono">color/text/primary</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#0C0C0C"></div><span class="mono">#0C0C0C</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#FAF8F2;border:1px solid #555"></div><span class="mono">#FAF8F2</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/text/secondary</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#5C5648"></div><span class="mono">#5C5648</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#B0A890"></div><span class="mono">#B0A890</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/text/tertiary</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#847C66"></div><span class="mono">#847C66</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#847C66"></div><span class="mono">#847C66</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/text/placeholder</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#B0A890"></div><span class="mono">#B0A890</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#5C5648"></div><span class="mono">#5C5648</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/text/disabled</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#B0A890"></div><span class="mono">#B0A890</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#5C5648"></div><span class="mono">#5C5648</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/text/inverse</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#FFFFFF;border:1px solid #d4cebc"></div><span class="mono">#FFFFFF</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#0C0C0C"></div><span class="mono">#0C0C0C</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/text/on-brand</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#FFFFFF;border:1px solid #d4cebc"></div><span class="mono">#FFFFFF</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#0C0C0C"></div><span class="mono">#0C0C0C</span></div></td>
+      </tr>
+
+      <tr><td colspan="3" class="cat-label">State / Functional</td></tr>
+      <tr>
+        <td class="mono">color/state/success</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#00BA80"></div><span class="mono">#00BA80</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#00E8A0"></div><span class="mono">#00E8A0</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/state/success-subtle</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#DAFEF3"></div><span class="mono">#DAFEF3</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#001814"></div><span class="mono">#001814</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/state/warning</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#D4A800"></div><span class="mono">#D4A800</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#EED000"></div><span class="mono">#EED000</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/state/warning-subtle</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#FEFDE8"></div><span class="mono">#FEFDE8</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#301E00"></div><span class="mono">#301E00</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/state/danger</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#E8184E"></div><span class="mono">#E8184E</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#EF3C68"></div><span class="mono">#EF3C68</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/state/danger-subtle</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#FFF0F4"></div><span class="mono">#FFF0F4</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#2A020D"></div><span class="mono">#2A020D</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/state/info</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#2C60F0"></div><span class="mono">#2C60F0</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#4070F0"></div><span class="mono">#4070F0</span></div></td>
+      </tr>
+      <tr>
+        <td class="mono">color/state/info-subtle</td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#E6ECFD"></div><span class="mono">#E6ECFD</span></div></td>
+        <td><div class="swatch-cell"><div class="swatch" style="background:#020824"></div><span class="mono">#020824</span></div></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     3. SPACING
+════════════════════════════════════════════════════ -->
+<div class="section page-break">
+  <div class="section-header">
+    <span class="section-title">3 — Spacing</span>
+    <span class="section-count">20 variables · scopes: GAP + WIDTH_HEIGHT</span>
+  </div>
+  <p class="usage" style="margin-bottom:14px">All values are multiples of 4px. Scoped to padding and gap fields only.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:28%">Token name</th>
+        <th style="width:10%">Value</th>
+        <th style="width:30%">Visual</th>
+        <th>Semantic use</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="4" class="cat-label">Scale</td></tr>
+      <tr><td class="mono">spacing/1</td><td class="mono">4px</td><td><div class="spacing-bar" style="width:4px;height:10px"></div></td><td class="dim">—</td></tr>
+      <tr><td class="mono">spacing/2</td><td class="mono">8px</td><td><div class="spacing-bar" style="width:8px;height:10px"></div></td><td class="dim">—</td></tr>
+      <tr><td class="mono">spacing/3</td><td class="mono">12px</td><td><div class="spacing-bar" style="width:12px;height:10px"></div></td><td class="dim">—</td></tr>
+      <tr><td class="mono">spacing/4</td><td class="mono">16px</td><td><div class="spacing-bar" style="width:16px;height:10px"></div></td><td class="dim">—</td></tr>
+      <tr><td class="mono">spacing/6</td><td class="mono">24px</td><td><div class="spacing-bar" style="width:24px;height:10px"></div></td><td class="dim">—</td></tr>
+      <tr><td class="mono">spacing/8</td><td class="mono">32px</td><td><div class="spacing-bar" style="width:32px;height:10px"></div></td><td class="dim">—</td></tr>
+      <tr><td class="mono">spacing/12</td><td class="mono">48px</td><td><div class="spacing-bar" style="width:48px;height:10px"></div></td><td class="dim">—</td></tr>
+      <tr><td class="mono">spacing/16</td><td class="mono">64px</td><td><div class="spacing-bar" style="width:64px;height:10px"></div></td><td class="dim">—</td></tr>
+      <tr><td class="mono">spacing/20</td><td class="mono">80px</td><td><div class="spacing-bar" style="width:80px;height:10px"></div></td><td class="dim">—</td></tr>
+      <tr><td class="mono">spacing/24</td><td class="mono">96px</td><td><div class="spacing-bar" style="width:96px;height:10px"></div></td><td class="dim">—</td></tr>
+      <tr><td colspan="4" class="cat-label">Semantic aliases</td></tr>
+      <tr><td class="mono">spacing/icon-gap</td><td class="mono">4px</td><td><div class="spacing-bar" style="width:4px;height:10px"></div></td><td>Gap between icon and label</td></tr>
+      <tr><td class="mono">spacing/chip-padding</td><td class="mono">4px</td><td><div class="spacing-bar" style="width:4px;height:10px"></div></td><td>Horizontal padding on chips</td></tr>
+      <tr><td class="mono">spacing/input-padding</td><td class="mono">8px</td><td><div class="spacing-bar" style="width:8px;height:10px"></div></td><td>Input inner padding</td></tr>
+      <tr><td class="mono">spacing/badge-padding</td><td class="mono">8px</td><td><div class="spacing-bar" style="width:8px;height:10px"></div></td><td>Badge horizontal padding</td></tr>
+      <tr><td class="mono">spacing/card-padding-sm</td><td class="mono">16px</td><td><div class="spacing-bar" style="width:16px;height:10px"></div></td><td>Compact card padding</td></tr>
+      <tr><td class="mono">spacing/card-padding-md</td><td class="mono">24px</td><td><div class="spacing-bar" style="width:24px;height:10px"></div></td><td>Standard card padding</td></tr>
+      <tr><td class="mono">spacing/section-gap-sm</td><td class="mono">32px</td><td><div class="spacing-bar" style="width:32px;height:10px"></div></td><td>Gap between sections (compact)</td></tr>
+      <tr><td class="mono">spacing/section-gap-lg</td><td class="mono">48px</td><td><div class="spacing-bar" style="width:48px;height:10px"></div></td><td>Gap between sections (standard)</td></tr>
+      <tr><td class="mono">spacing/page-section-padding</td><td class="mono">64px</td><td><div class="spacing-bar" style="width:64px;height:10px"></div></td><td>Page-level section padding</td></tr>
+      <tr><td class="mono">spacing/hero-padding</td><td class="mono">96px</td><td><div class="spacing-bar" style="width:96px;height:10px"></div></td><td>Hero / cover padding</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     4. BORDER RADIUS
+════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-title">4 — Border Radius</span>
+    <span class="section-count">8 variables · scope: CORNER_RADIUS only</span>
+  </div>
+
+  <table style="margin-bottom:16px">
+    <thead>
+      <tr><th style="width:28%">Token name</th><th style="width:12%">Value</th><th>Use</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="mono">radius/none</td><td class="mono">0px</td><td>Tables, sharp inputs, data grids</td></tr>
+      <tr><td class="mono">radius/xs</td><td class="mono">2px</td><td>Chips, tags, small badges</td></tr>
+      <tr><td class="mono">radius/sm</td><td class="mono">4px</td><td>Small buttons, tooltips</td></tr>
+      <tr><td class="mono">radius/md</td><td class="mono">8px</td><td>Cards, inputs, standard buttons</td></tr>
+      <tr><td class="mono">radius/lg</td><td class="mono">12px</td><td>Modals, side panels, popovers</td></tr>
+      <tr><td class="mono">radius/xl</td><td class="mono">16px</td><td>Large cards, drawer surfaces</td></tr>
+      <tr><td class="mono">radius/2xl</td><td class="mono">24px</td><td>Featured / hero cards</td></tr>
+      <tr><td class="mono">radius/full</td><td class="mono">9999px</td><td>Pills, avatar chips, toggle tracks</td></tr>
+    </tbody>
+  </table>
+
+  <div class="radius-grid">
+    <div class="radius-block"><div class="radius-square" style="border-radius:0"></div><div class="radius-label">none</div></div>
+    <div class="radius-block"><div class="radius-square" style="border-radius:2px"></div><div class="radius-label">xs / 2</div></div>
+    <div class="radius-block"><div class="radius-square" style="border-radius:4px"></div><div class="radius-label">sm / 4</div></div>
+    <div class="radius-block"><div class="radius-square" style="border-radius:8px"></div><div class="radius-label">md / 8</div></div>
+    <div class="radius-block"><div class="radius-square" style="border-radius:12px"></div><div class="radius-label">lg / 12</div></div>
+    <div class="radius-block"><div class="radius-square" style="border-radius:16px"></div><div class="radius-label">xl / 16</div></div>
+    <div class="radius-block"><div class="radius-square" style="border-radius:24px"></div><div class="radius-label">2xl / 24</div></div>
+    <div class="radius-block"><div class="radius-square" style="border-radius:9999px"></div><div class="radius-label">full</div></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     5. TYPOGRAPHY VARIABLES
+════════════════════════════════════════════════════ -->
+<div class="section page-break">
+  <div class="section-header">
+    <span class="section-title">5 — Typography Variables</span>
+    <span class="section-count">32 variables · 3 responsive modes</span>
+  </div>
+  <p class="usage" style="margin-bottom:14px">All values in px. Typeface: Montserrat. Weights: 400 regular / 500 medium / 600 semibold / 700 bold.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:30%">Token name</th>
+        <th style="width:20%">Base / 1080p</th>
+        <th style="width:20%">Large / 1440p</th>
+        <th style="width:20%">4K / Tabletop</th>
+        <th>Type</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="5" class="cat-label">Font size (size/*)</td></tr>
+      <tr><td class="mono">size/display-hero</td><td class="mono">56</td><td class="mono">64</td><td class="mono">80</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">size/display-title</td><td class="mono">40</td><td class="mono">48</td><td class="mono">60</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">size/display-subtitle</td><td class="mono">28</td><td class="mono">32</td><td class="mono">40</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">size/heading-1</td><td class="mono">24</td><td class="mono">28</td><td class="mono">36</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">size/heading-2</td><td class="mono">20</td><td class="mono">24</td><td class="mono">30</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">size/heading-3</td><td class="mono">16</td><td class="mono">18</td><td class="mono">24</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">size/body-default</td><td class="mono">14</td><td class="mono">16</td><td class="mono">20</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">size/body-strong</td><td class="mono">14</td><td class="mono">16</td><td class="mono">20</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">size/body-small</td><td class="mono">12</td><td class="mono">14</td><td class="mono">18</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">size/ui-label-lg</td><td class="mono">14</td><td class="mono">16</td><td class="mono">20</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">size/ui-label</td><td class="mono">12</td><td class="mono">14</td><td class="mono">18</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">size/ui-overline</td><td class="mono">11</td><td class="mono">12</td><td class="mono">14</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">size/data-number</td><td class="mono">32</td><td class="mono">40</td><td class="mono">56</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">size/data-stat</td><td class="mono">20</td><td class="mono">24</td><td class="mono">32</td><td class="dim">FLOAT</td></tr>
+
+      <tr><td colspan="5" class="cat-label">Line height (leading/*)</td></tr>
+      <tr><td class="mono">leading/display-hero</td><td class="mono">64</td><td class="mono">72</td><td class="mono">90</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">leading/display-title</td><td class="mono">48</td><td class="mono">56</td><td class="mono">70</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">leading/display-subtitle</td><td class="mono">36</td><td class="mono">40</td><td class="mono">50</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">leading/heading-1</td><td class="mono">32</td><td class="mono">36</td><td class="mono">44</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">leading/heading-2</td><td class="mono">28</td><td class="mono">32</td><td class="mono">40</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">leading/heading-3</td><td class="mono">24</td><td class="mono">26</td><td class="mono">32</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">leading/body</td><td class="mono">22</td><td class="mono">26</td><td class="mono">32</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">leading/body-small</td><td class="mono">18</td><td class="mono">22</td><td class="mono">28</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">leading/ui-label-lg</td><td class="mono">20</td><td class="mono">24</td><td class="mono">28</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">leading/ui-label</td><td class="mono">16</td><td class="mono">20</td><td class="mono">26</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">leading/ui-overline</td><td class="mono">14</td><td class="mono">16</td><td class="mono">20</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">leading/data-number</td><td class="mono">40</td><td class="mono">48</td><td class="mono">64</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">leading/data-stat</td><td class="mono">28</td><td class="mono">32</td><td class="mono">40</td><td class="dim">FLOAT</td></tr>
+
+      <tr><td colspan="5" class="cat-label">Font family & weights (font/*)</td></tr>
+      <tr><td class="mono">font/family</td><td colspan="3" class="mono">Montserrat</td><td class="dim">STRING</td></tr>
+      <tr><td class="mono">font/weight/regular</td><td colspan="3" class="mono">400</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">font/weight/medium</td><td colspan="3" class="mono">500</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">font/weight/semibold</td><td colspan="3" class="mono">600</td><td class="dim">FLOAT</td></tr>
+      <tr><td class="mono">font/weight/bold</td><td colspan="3" class="mono">700</td><td class="dim">FLOAT</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     6. TEXT STYLES
+════════════════════════════════════════════════════ -->
+<div class="section">
+  <div class="section-header">
+    <span class="section-title">6 — Text Styles (Figma)</span>
+    <span class="section-count">14 styles · Montserrat</span>
+  </div>
+  <p class="usage" style="margin-bottom:14px">Values shown are for Base / 1080p. Apply responsive size/leading variables for 1440p and 4K.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:30%">Style name</th>
+        <th style="width:12%">Size</th>
+        <th style="width:12%">Line-ht</th>
+        <th style="width:16%">Weight</th>
+        <th>Specimen</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="5" class="cat-label">Display</td></tr>
+      <tr>
+        <td class="mono">Display/Hero</td><td class="mono">56</td><td class="mono">64</td><td>Bold 700</td>
+        <td style="font-family:'Inter',sans-serif;font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1">Hero</td>
+      </tr>
+      <tr>
+        <td class="mono">Display/Title</td><td class="mono">40</td><td class="mono">48</td><td>Bold 700</td>
+        <td style="font-family:'Inter',sans-serif;font-size:18px;font-weight:700;letter-spacing:-.01em">Title</td>
+      </tr>
+      <tr>
+        <td class="mono">Display/Subtitle</td><td class="mono">28</td><td class="mono">36</td><td>SemiBold 600</td>
+        <td style="font-family:'Inter',sans-serif;font-size:15px;font-weight:600">Subtitle</td>
+      </tr>
+
+      <tr><td colspan="5" class="cat-label">Heading</td></tr>
+      <tr>
+        <td class="mono">Heading/H1</td><td class="mono">24</td><td class="mono">32</td><td>SemiBold 600</td>
+        <td style="font-family:'Inter',sans-serif;font-size:14px;font-weight:600">Heading 1</td>
+      </tr>
+      <tr>
+        <td class="mono">Heading/H2</td><td class="mono">20</td><td class="mono">28</td><td>SemiBold 600</td>
+        <td style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600">Heading 2</td>
+      </tr>
+      <tr>
+        <td class="mono">Heading/H3</td><td class="mono">16</td><td class="mono">24</td><td>SemiBold 600</td>
+        <td style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600">Heading 3</td>
+      </tr>
+
+      <tr><td colspan="5" class="cat-label">Body</td></tr>
+      <tr>
+        <td class="mono">Body/Default</td><td class="mono">14</td><td class="mono">22</td><td>Regular 400</td>
+        <td style="font-size:12px;font-weight:400">The quick brown fox</td>
+      </tr>
+      <tr>
+        <td class="mono">Body/Strong</td><td class="mono">14</td><td class="mono">22</td><td>SemiBold 600</td>
+        <td style="font-size:12px;font-weight:600">The quick brown fox</td>
+      </tr>
+      <tr>
+        <td class="mono">Body/Small</td><td class="mono">12</td><td class="mono">18</td><td>Regular 400</td>
+        <td style="font-size:11px;font-weight:400;color:#5c5648">Caption and helper text</td>
+      </tr>
+
+      <tr><td colspan="5" class="cat-label">UI</td></tr>
+      <tr>
+        <td class="mono">UI/Label — Large</td><td class="mono">14</td><td class="mono">20</td><td>Medium 500</td>
+        <td style="font-size:12px;font-weight:500">Label text</td>
+      </tr>
+      <tr>
+        <td class="mono">UI/Label</td><td class="mono">12</td><td class="mono">16</td><td>Medium 500</td>
+        <td style="font-size:11px;font-weight:500">Label</td>
+      </tr>
+      <tr>
+        <td class="mono">UI/Overline</td><td class="mono">11</td><td class="mono">14</td><td>SemiBold 600</td>
+        <td style="font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#847c66">SECTION LABEL</td>
+      </tr>
+
+      <tr><td colspan="5" class="cat-label">Data</td></tr>
+      <tr>
+        <td class="mono">Data/Number</td><td class="mono">32</td><td class="mono">40</td><td>Bold 700</td>
+        <td style="font-size:17px;font-weight:700">42,810</td>
+      </tr>
+      <tr>
+        <td class="mono">Data/Stat</td><td class="mono">20</td><td class="mono">28</td><td>SemiBold 600</td>
+        <td style="font-size:13px;font-weight:600;color:#00ba80">+12.4%</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     7. PAINT STYLES
+════════════════════════════════════════════════════ -->
+<div class="section page-break">
+  <div class="section-header">
+    <span class="section-title">7 — Paint Styles (Figma)</span>
+    <span class="section-count">19 styles</span>
+  </div>
+  <p class="usage" style="margin-bottom:14px">Static fill styles. For LM/DM switching, use Color / Semantic variables instead.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width:50%">Style name</th><th>Hex</th><th>Swatch</th></tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="3" class="cat-label">Brand</td></tr>
+      <tr><td class="mono">Brand/Primary — Electric Blue</td><td class="mono">#2C60F0</td><td><div class="swatch" style="background:#2C60F0"></div></td></tr>
+      <tr><td class="mono">Brand/Secondary — Mint</td><td class="mono">#00E8A0</td><td><div class="swatch" style="background:#00E8A0"></div></td></tr>
+      <tr><td class="mono">Brand/Tertiary — Crimson (LM)</td><td class="mono">#E8184E</td><td><div class="swatch" style="background:#E8184E"></div></td></tr>
+      <tr><td class="mono">Brand/Tertiary — Crimson (DM)</td><td class="mono">#EF3C68</td><td><div class="swatch" style="background:#EF3C68"></div></td></tr>
+      <tr><td class="mono">Brand/Accent — Gold (LM)</td><td class="mono">#D4A800</td><td><div class="swatch" style="background:#D4A800"></div></td></tr>
+      <tr><td class="mono">Brand/Accent — Gold (DM)</td><td class="mono">#EED000</td><td><div class="swatch" style="background:#EED000"></div></td></tr>
+      <tr><td colspan="3" class="cat-label">Neutral</td></tr>
+      <tr><td class="mono">Neutral/Page BG (LM)</td><td class="mono">#FAF8F2</td><td><div class="swatch" style="background:#FAF8F2;border:1px solid #d4cebc"></div></td></tr>
+      <tr><td class="mono">Neutral/Surface (LM)</td><td class="mono">#EEE9DC</td><td><div class="swatch" style="background:#EEE9DC"></div></td></tr>
+      <tr><td class="mono">Neutral/Border (LM)</td><td class="mono">#D4CEBC</td><td><div class="swatch" style="background:#D4CEBC"></div></td></tr>
+      <tr><td class="mono">Neutral/500 — Secondary Text</td><td class="mono">#5C5648</td><td><div class="swatch" style="background:#5C5648"></div></td></tr>
+      <tr><td class="mono">Neutral/Page BG (DM)</td><td class="mono">#0C0C0C</td><td><div class="swatch" style="background:#0C0C0C"></div></td></tr>
+      <tr><td class="mono">Neutral/Surface (DM)</td><td class="mono">#1C1A14</td><td><div class="swatch" style="background:#1C1A14"></div></td></tr>
+      <tr><td class="mono">Neutral/Border (DM)</td><td class="mono">#38342A</td><td><div class="swatch" style="background:#38342A"></div></td></tr>
+      <tr><td class="mono">Neutral/Pure White</td><td class="mono">#FFFFFF</td><td><div class="swatch" style="background:#FFFFFF;border:1px solid #d4cebc"></div></td></tr>
+      <tr><td class="mono">Neutral/Pure Black</td><td class="mono">#000000</td><td><div class="swatch" style="background:#000000"></div></td></tr>
+      <tr><td colspan="3" class="cat-label">State</td></tr>
+      <tr><td class="mono">State/Success</td><td class="mono">#00BA80</td><td><div class="swatch" style="background:#00BA80"></div></td></tr>
+      <tr><td class="mono">State/Warning</td><td class="mono">#D4A800</td><td><div class="swatch" style="background:#D4A800"></div></td></tr>
+      <tr><td class="mono">State/Danger</td><td class="mono">#E8184E</td><td><div class="swatch" style="background:#E8184E"></div></td></tr>
+      <tr><td class="mono">State/Info</td><td class="mono">#2C60F0</td><td><div class="swatch" style="background:#2C60F0"></div></td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- Footer -->
+<div style="margin-top:48px;padding-top:16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+  <span style="font-size:10px;color:var(--ink-4)">BTX · Digital Twin PoC — Design System Token Reference</span>
+  <span style="font-size:10px;color:var(--ink-4)">Figma file: MiRWzAqwyE3YqDfq6RkQSc</span>
+</div>
+
+</body>
+</html>
