@@ -1,6 +1,7 @@
 import { CommandCenterTopBar } from "@/components/command-center/command-center-top-bar";
 import { HeatLayer } from "@/components/command-center/heat-layer";
 import { InactiveSiteMarkers } from "@/components/command-center/inactive-site-markers";
+import { MapChromeBoundsProvider } from "@/components/command-center/map-chrome-bounds-context";
 import { MapKpiLayer } from "@/components/command-center/map-kpi-layer";
 import { MapZoomProvider } from "@/components/command-center/map-zoom-context";
 import { MapCanvas } from "@/components/command-center/map-canvas";
@@ -17,15 +18,17 @@ export function Screen1() {
   return (
     <div className="fixed inset-0 overflow-hidden bg-[var(--shell-bg)] text-white">
       <PermitFilterProvider allSites={INACTIVE_SITES}>
-        <MapZoomProvider>
-          <MapCanvas>
-            <HeatLayer />
-            <MapKpiLayer />
-            <InactiveSiteMarkers />
-          </MapCanvas>
-        </MapZoomProvider>
+        <MapChromeBoundsProvider>
+          <MapZoomProvider>
+            <MapCanvas>
+              <HeatLayer />
+              <MapKpiLayer />
+              <InactiveSiteMarkers />
+            </MapCanvas>
+          </MapZoomProvider>
 
-        <CommandCenterTopBar summary={aiSummary} />
+          <CommandCenterTopBar summary={aiSummary} />
+        </MapChromeBoundsProvider>
       </PermitFilterProvider>
     </div>
   );

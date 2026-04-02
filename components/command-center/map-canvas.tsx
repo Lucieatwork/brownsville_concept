@@ -1,5 +1,6 @@
 "use client";
 
+import { MapManualPanSurface } from "@/components/command-center/map-manual-pan-surface";
 import Image from "next/image";
 import { useCallback, useState } from "react";
 
@@ -50,6 +51,9 @@ export function MapCanvas({ children }: MapCanvasProps) {
         className="pointer-events-none absolute inset-0 bg-black/25"
         aria-hidden
       />
+
+      {/* Only active when wrapped in MapZoomProvider (screen 1). */}
+      <MapManualPanSurface />
 
       {children}
     </div>

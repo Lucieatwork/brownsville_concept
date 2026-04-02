@@ -26,6 +26,10 @@ export type InactiveSite = {
    * When set (west hotspot pin), click opens the permit card — demo only.
    */
   showHoverInsightCard?: boolean;
+  /**
+   * When set, card content loads from `lib/permit-intelligence-dataset.ts` (rich mock permit).
+   */
+  permitDetailId?: string;
   /** Mock permit row — powers top-left filters and search on the map. */
   permitNumber: string;
   siteName: string;
@@ -53,22 +57,23 @@ export const INACTIVE_SITES: readonly InactiveSite[] = [
     councilDistrict: 2,
     stage: "Review",
   },
-  /* On west “hot” core (heat-layer lobe cx 12, cy 37) — permit card demo */
+  /* On west “hot” core (heat-layer lobe cx 12, cy 37) — permit card demo (BP-0441 dataset) */
   {
     id: "inv-02",
     xPercent: 12,
     yPercent: 37,
     isHeatCore: true,
     showHoverInsightCard: true,
-    healthScore: 45,
-    permitNumber: "BTX-2024-04471",
-    siteName: "Riverside Commons – Phase 2",
-    addressSummary: "1800 E Elizabeth St, Brownsville TX 78520",
+    permitDetailId: "BP-0441",
+    healthScore: 25,
+    permitNumber: "BP-0441",
+    siteName: "Boca Chica logistics annex",
+    addressSummary: "1842 E Elizabeth St, Brownsville TX 78520",
     status: "Pending",
     permitType: "New Commercial Construction",
     zipCode: "78520",
     councilDistrict: 1,
-    stage: "Inspections",
+    stage: "Review",
   },
   {
     id: "inv-03",
