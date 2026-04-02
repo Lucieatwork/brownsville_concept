@@ -1,5 +1,6 @@
 "use client";
 
+import { usePermitFiltersOptional } from "@/components/command-center/permit-filter-context";
 import { useMapZoomOptional } from "@/components/command-center/map-zoom-context";
 import { montserrat } from "@/lib/fonts";
 import type { InactiveSite } from "@/lib/inactive-sites";
@@ -10,66 +11,75 @@ import { useCallback, useEffect, useRef, useState } from "react";
 /**
  * Renders mock **inactive** construction sites from `INACTIVE_SITES` in `lib/inactive-sites.ts`.
  * Positions use the same 0–100% idea as `HeatLayer`’s SVG (spread across the basemap).
- * Pin-shaped markers (tip on the site); dashed outline + inner dot read as inactive.
+ * Each site is a **health score** inside a color-coded circle centered on the coordinate.
  *
  * Three markers sit on the **hot** lobe centers in `heat-layer.tsx` (deepest red cores):
  * east cx/cy 59/24, west 12/37, south 42/60 — keep these in sync if you move the heat.
- * Those three use `isHeatCore` so they render as **white** pins on the pink / rose heat; the rest stay muted dashed.
+ * Markers use `pointer-events-auto` so every score circle can show hover (0.5px white ring + soft glow).
  */
 
-/** Map pin: tip at bottom center of viewBox so we anchor the needle on the lat/lng point. */
-function InactivePinIcon({
-  isHeatCore,
-  /** When true (e.g. permit card open), keep the rose / red “hover” look until the user clicks away. */
+/** Keeps mock data in the 1–100 band expected by the color scale. */
+function clampHealthScore(raw: number): number {
+  if (Number.isNaN(raw)) return 1;
+  return Math.max(1, Math.min(100, Math.round(raw)));
+}
+
+/**
+ * Map marker: score inside a circle. Crimson 1–33 (white text); yellow 34–66 (black text); mint 67–100.
+ * 2px fill stroke: crimson/yellow 70/30 mix with white; mint 50/50. Hover + selected: 0.5px white ring + soft glow.
+ */
+function HealthScoreCircle({
+  score,
+  /** When true (e.g. permit card open), keep emphasis until the user dismisses the card. */
   isActive,
 }: {
-  isHeatCore?: boolean;
+  score: number;
   isActive?: boolean;
 }) {
-  /* Body fill uses currentColor on the <svg> so hover pink always resolves (same tokens as heat map). */
-  const bodyClass = isHeatCore
-    ? isActive
-      ? "fill-current stroke-[var(--map-pin-hover-outline)] transition-[stroke] duration-300 ease-out [paint-order:stroke_fill]"
-      : "fill-current stroke-[var(--map-pin-outline)] transition-[stroke] duration-300 ease-out [paint-order:stroke_fill] group-hover:stroke-[var(--map-pin-hover-outline)]"
-    : "fill-[var(--map-pin-muted-fill)] stroke-[var(--map-pin-muted-stroke)] [stroke-dasharray:4_3]";
+  const n = clampHealthScore(score);
 
-  /* Inner dot: shell-tinted on default; hover = light tint of `--heat-hot` + rose-tinted ring */
-  const innerCircleClass = isHeatCore
-    ? isActive
-      ? "fill-[var(--map-pin-hover-inner-fill)] stroke-[var(--map-pin-hover-inner-outline)] transition-[fill,stroke] duration-300 ease-out [paint-order:stroke_fill]"
-      : "fill-[var(--map-pin-heat-inner)] stroke-[var(--map-pin-outline-soft)] transition-[fill,stroke] duration-300 ease-out [paint-order:stroke_fill] group-hover:fill-[var(--map-pin-hover-inner-fill)] group-hover:stroke-[var(--map-pin-hover-inner-outline)]"
-    : "fill-[var(--map-pin-muted-inner-fill)] stroke-[var(--map-pin-muted-inner-stroke)]";
+  let fillHex: string;
+  let textClass: string;
+  if (n <= 33) {
+    fillHex = "#DC143C";
+    textClass = "text-white";
+  } else if (n < 67) {
+    fillHex = "#E8C547";
+    textClass = "text-black";
+  } else {
+    fillHex = "#00E8A0";
+    textClass = "text-black";
+  }
+
+  /* Mint stroke is 50/50 with white; crimson and yellow stay 70/30. */
+  const borderColor =
+    n >= 67
+      ? `color-mix(in srgb, ${fillHex} 50%, white 50%)`
+      : `color-mix(in srgb, ${fillHex} 70%, white 30%)`;
+
+  const whiteRingActive =
+    "ring-[0.5px] ring-white ring-offset-2 ring-offset-transparent";
+  const whiteRingHover =
+    "hover:ring-[0.5px] hover:ring-white hover:ring-offset-2 hover:ring-offset-transparent";
+
+  const ringClass = isActive ? whiteRingActive : whiteRingHover;
+
+  /* Full literal classes so Tailwind can see the arbitrary shadows (avoid template-built class names). */
+  const emphasisClass = isActive
+    ? "scale-105 shadow-[0_4px_16px_rgba(0,0,0,0.5),0_0_28px_rgba(255,255,255,0.1),0_0_48px_rgba(255,255,255,0.05)]"
+    : "hover:scale-105 hover:shadow-[0_4px_16px_rgba(0,0,0,0.5),0_0_28px_rgba(255,255,255,0.1),0_0_48px_rgba(255,255,255,0.05)]";
 
   return (
-    <svg
-      className={`h-11 w-9 transition-[color,filter] duration-300 ease-out ${
-        isHeatCore
-          ? isActive
-            ? "text-[var(--map-pin-hover-fill)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.65)]"
-            : "text-[var(--map-pin-heat-fill)] group-hover:text-[var(--map-pin-hover-fill)] drop-shadow-[0_1px_3px_rgba(0,0,0,0.65)]"
-          : "drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]"
-      }`}
-      viewBox="0 0 32 42"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+    <span
+      className={`box-border flex size-10 shrink-0 items-center justify-center rounded-full border-2 border-solid text-[13px] font-bold tabular-nums shadow-[0_2px_10px_rgba(0,0,0,0.45)] transition-[transform,box-shadow] duration-300 ease-out ${textClass} ${ringClass} ${emphasisClass}`}
+      style={{
+        backgroundColor: fillHex,
+        borderColor,
+      }}
       aria-hidden
     >
-      {/* Teardrop: default = dashed muted; heat-core = white fill for contrast on deepest red */}
-      <path
-        d="M16 40.5C16 40.5 3.5 22.5 3.5 14.5C3.5 7.32 9.07 1.5 16 1.5C22.93 1.5 28.5 7.32 28.5 14.5C28.5 22.5 16 40.5 16 40.5Z"
-        className={bodyClass}
-        strokeWidth={isHeatCore ? 1.35 : 1.75}
-        strokeLinejoin="round"
-      />
-      {/* Round cap in the bulb (classic map-pin look) */}
-      <circle
-        className={`${innerCircleClass} [paint-order:stroke_fill]`}
-        cx={16}
-        cy={12}
-        r={4.25}
-        strokeWidth={0.85}
-      />
-    </svg>
+      {n}
+    </span>
   );
 }
 
@@ -272,7 +282,6 @@ function SiteHoverInsightCard({ isOpen }: { isOpen: boolean }) {
 }
 
 function InactiveSiteMarker({ site }: { site: InactiveSite }) {
-  const isInteractive = Boolean(site.isHeatCore);
   const showInsightCard = Boolean(site.showHoverInsightCard);
   const [cardOpen, setCardOpen] = useState(false);
   const mapZoom = useMapZoomOptional();
@@ -315,15 +324,16 @@ function InactiveSiteMarker({ site }: { site: InactiveSite }) {
   const positionStyle = {
     left: `${site.xPercent}%`,
     top: `${site.yPercent}%`,
-    /* Tip of the pin sits on the coordinate (not the visual center of the icon). */
-    transform: "translate(-50%, -100%)",
+    /* Circle is centered on the coordinate (unlike the old pin tip). */
+    transform: "translate(-50%, -50%)",
   } as const;
 
   if (showInsightCard) {
+    // Open permit card: raise this marker so the popover paints above every other pin (they share z-[6]).
     return (
       <div
         ref={markerRootRef}
-        className="pointer-events-auto absolute z-[6] flex justify-center"
+        className={`pointer-events-auto absolute flex justify-center ${cardOpen ? "z-[60]" : "z-[6]"}`}
         style={positionStyle}
       >
         <button
@@ -331,13 +341,13 @@ function InactiveSiteMarker({ site }: { site: InactiveSite }) {
           aria-expanded={cardOpen}
           aria-label={
             cardOpen
-              ? "Close permit details for this site"
-              : "Open permit details for this site"
+              ? `Close permit details for this site (health score ${clampHealthScore(site.healthScore)})`
+              : `Open permit details for this site (health score ${clampHealthScore(site.healthScore)})`
           }
-          className="group flex cursor-pointer justify-center rounded-sm border-0 bg-transparent p-0 outline-none focus-visible:ring-2 focus-visible:ring-white/35 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+          className="flex cursor-pointer justify-center rounded-full border-0 bg-transparent p-0 outline-none focus-visible:ring-[0.5px] focus-visible:ring-white/35 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
           onClick={toggleCard}
         >
-          <InactivePinIcon isHeatCore={site.isHeatCore} isActive={cardOpen} />
+          <HealthScoreCircle score={site.healthScore} isActive={cardOpen} />
         </button>
         <SiteHoverInsightCard isOpen={cardOpen} />
       </div>
@@ -346,26 +356,27 @@ function InactiveSiteMarker({ site }: { site: InactiveSite }) {
 
   return (
     <div
-      className={
-        isInteractive
-          ? "group pointer-events-auto absolute z-[6] flex cursor-pointer justify-center"
-          : "pointer-events-none absolute flex justify-center"
-      }
+      className="pointer-events-auto absolute z-[6] flex cursor-default justify-center"
       style={positionStyle}
     >
-      <InactivePinIcon isHeatCore={site.isHeatCore} />
+      <HealthScoreCircle score={site.healthScore} />
     </div>
   );
 }
 
 export function InactiveSiteMarkers() {
+  const permitFilters = usePermitFiltersOptional();
+  const visibleSites = permitFilters
+    ? INACTIVE_SITES.filter(permitFilters.siteMatchesFilters)
+    : INACTIVE_SITES;
+
   return (
     <div
       className="pointer-events-none absolute inset-0 z-[5]"
       role="group"
-      aria-label="Inactive construction sites on the map; white pins on heat hotspots turn rose when hovered; the west hotspot pin opens permit details and stays rose until you click elsewhere or close the card"
+      aria-label="Inactive construction sites on the map; each marker shows a health score in a color-coded circle; the west hotspot opens permit details when activated"
     >
-      {INACTIVE_SITES.map((site) => (
+      {visibleSites.map((site) => (
         <InactiveSiteMarker key={site.id} site={site} />
       ))}
     </div>
