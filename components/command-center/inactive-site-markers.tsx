@@ -163,12 +163,22 @@ function factorBarFillColor(score: number): string {
   return "#00E8A0";
 }
 
-function liveStatusDotClass(
-  tone: PermitDetailRecord["liveSiteStatus"]["tone"],
-): string {
-  if (tone === "critical") return "bg-[#DC143C]";
-  if (tone === "ok") return "bg-[#00E8A0]";
-  return "bg-[#eed000]";
+/**
+ * Solid fill + text for blocks that should read as the same “band” as the map health circle
+ * (crimson + white text; yellow/mint + black text).
+ */
+function healthScoreInsightSurface(score: number): {
+  backgroundColor: string;
+  textClass: string;
+} {
+  const n = clampHealthScore(score);
+  if (n <= 33) {
+    return { backgroundColor: "#DC143C", textClass: "text-white" };
+  }
+  if (n < 67) {
+    return { backgroundColor: "#E8C547", textClass: "text-black" };
+  }
+  return { backgroundColor: "#00E8A0", textClass: "text-black" };
 }
 
 /**
@@ -187,18 +197,21 @@ function PermitHealthBreakdown({
   const bandClass = subpanel
     ? "mt-0 text-xs font-medium text-white"
     : "mt-1 text-[11px] font-medium text-white";
-  const rowText = subpanel ? "text-[11px]" : "text-[10px]";
+  /* Factor row (label + % wt · score) and list copy below: +1pt vs rest of permit card labels */
+  const rowText = subpanel
+    ? "text-[calc(11px+1pt)]"
+    : "text-[calc(10px+2pt)]";
   const listText = subpanel
-    ? "text-[11px] leading-relaxed"
-    : "text-[10px] leading-relaxed";
-  const sectionLabel = "text-[10px] font-bold uppercase text-white";
+    ? "text-[calc(11px+1pt)] leading-relaxed"
+    : "text-[calc(10px+2pt)] leading-relaxed";
+  const sectionLabel = "text-[calc(10px+2pt)] font-bold uppercase text-white";
 
   return (
-    <div className="rounded-lg border border-white/15 bg-black/20 px-3 py-3">
+    <div className="rounded-lg border border-[var(--border-subtle)] bg-black/20 px-3 py-3">
       <div className="flex items-start justify-between gap-2">
         <div>
           {!subpanel ? (
-            <p className="text-[10px] font-bold uppercase tracking-wide text-white">
+            <p className="text-[calc(10px+1pt)] font-bold uppercase tracking-wide text-white">
               Permit health
             </p>
           ) : null}
@@ -217,7 +230,7 @@ function PermitHealthBreakdown({
           >
             {composite}
           </span>
-          <span className="text-[9px] font-semibold text-white/90">/ 100</span>
+          <span className="text-[calc(9px+1pt)] font-semibold text-white/90">/ 100</span>
         </div>
       </div>
 
@@ -232,7 +245,8 @@ function PermitHealthBreakdown({
                 {Math.round(f.weight * 100)}% wt · {clampHealthScore(f.score)}
               </span>
             </div>
-            <div className="h-1 w-full overflow-hidden rounded-sm bg-[#38342a]">
+            {/* Track: white so colored fills read clearly on the glass card */}
+            <div className="h-1 w-full overflow-hidden rounded-sm bg-white">
               <div
                 className="h-full rounded-sm transition-[width] duration-300"
                 style={{
@@ -246,7 +260,7 @@ function PermitHealthBreakdown({
       </ul>
 
       {hs.blockingReasons.length > 0 ? (
-        <div className="mt-4 border-t border-white/10 pt-3">
+        <div className="mt-4 -mx-3 border-t border-[var(--divider-subtle)] px-3 pt-3">
           <p className={sectionLabel}>Blocking reasons</p>
           <ul className="mt-2 list-inside list-disc text-white marker:text-white/80">
             {hs.blockingReasons.map((reason) => (
@@ -289,14 +303,14 @@ function PermitJourneyCompact({
     : "text-[11px] leading-relaxed";
   const detailText = large
     ? "text-[11px] text-white/80"
-    : "text-[10px] text-white/80";
+    : "text-[calc(10px+1pt)] text-white/80";
 
   return (
     <div className="flex flex-col gap-2">
       {!hideTitle ? (
         <p className="text-[11px] font-semibold text-white">Permit journey</p>
       ) : null}
-      <ol className="flex flex-col gap-2 border-l border-white/25 pl-3">
+      <ol className="flex flex-col gap-2 border-l border-[var(--border-subtle)] pl-3">
         {detail.journey.map((step) => {
           const mark =
             step.status === "complete"
@@ -336,7 +350,7 @@ function PermitReviewsList({
 }) {
   const boxText = large
     ? "text-[11px] leading-relaxed"
-    : "text-[10px] leading-relaxed";
+    : "text-[calc(10px+1pt)] leading-relaxed";
   return (
     <ul className="flex flex-col gap-2">
       {detail.reviews.map((r, index) => (
@@ -430,11 +444,11 @@ function RowChevron({ expanded }: { expanded: boolean }) {
   );
 }
 
-/** Shared look for detail drill rows: 1px border, subtle white rim on hover / when expanded (keeps copy legible). */
+/** Detail drill rows — frosted dark bar, light rim; hover/active add white edge + soft glow. */
 const PERMIT_DETAIL_DRILL_BTN =
-  "flex w-full items-center gap-2 rounded-lg border border-white/15 bg-black/20 px-2.5 py-2.5 text-left transition-[border-color,box-shadow,background-color] duration-200 ease-out hover:border-white hover:bg-black/30 hover:shadow-[0_0_12px_rgba(255,255,255,0.14)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40 active:border-white active:bg-black/30 active:shadow-[0_0_12px_rgba(255,255,255,0.14)]";
+  "flex w-full items-center gap-2 rounded-lg border border-white/15 bg-black/40 px-2.5 py-2.5 text-left transition-[border-color,box-shadow,background-color] duration-200 ease-out hover:border-white hover:bg-black/50 hover:shadow-[0_0_12px_rgba(255,255,255,0.14)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40 active:border-white active:bg-black/50 active:shadow-[0_0_12px_rgba(255,255,255,0.14)]";
 const PERMIT_DETAIL_DRILL_BTN_EXPANDED =
-  "border-white bg-black/30 shadow-[0_0_12px_rgba(255,255,255,0.14)]";
+  "border-white bg-black/50 shadow-[0_0_12px_rgba(255,255,255,0.14)]";
 
 const DRILL_SECTION_LABELS: Record<PermitCardDrillSection, string> = {
   health: "Permit health",
@@ -485,12 +499,15 @@ function SiteHoverInsightCard({
     1,
     detail.permitDaysElapsed / detail.permitDaysTotal,
   );
+  const aiInsightSurface = healthScoreInsightSurface(
+    detail.health_score.composite,
+  );
 
   const cardMotionStyle = {
     opacity: isOpen ? 1 : 0,
     transform: isOpen
-      ? "translate3d(0, calc(-50% + 5rem), 0)"
-      : "translate3d(0, calc(-50% + 5rem + 5rem), 0)",
+      ? "translate3d(0, calc(-50% + 2rem), 0)"
+      : "translate3d(0, calc(-50% + 2rem + 5rem), 0)",
     transition: `opacity ${PERMIT_CARD_TRANSITION_MS}ms ease-in-out, transform ${PERMIT_CARD_TRANSITION_MS}ms ease-in-out`,
   } as const;
 
@@ -540,7 +557,7 @@ function SiteHoverInsightCard({
       }`}
     >
       <aside
-        className={`relative flex w-full max-h-[min(52vh,calc(0.62*_(100vh_-_3rem)))] min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-glass)] shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-md sm:w-[min(28rem,calc(100vw-1.25rem))] ${
+        className={`relative flex w-full max-h-[min(52vh,calc(0.62*_(100vh_-_3rem)))] min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-glass-panel)] shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl backdrop-saturate-150 sm:w-[min(28rem,calc(100vw-1.25rem))] ${
           isOpen ? "" : ""
         }`}
         aria-label="Permit summary"
@@ -555,7 +572,7 @@ function SiteHoverInsightCard({
                 ? "Zoom map back out"
                 : "Zoom map in on this permit card"
             }
-            className="absolute right-3 top-3 z-[3] flex size-9 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent text-transparent hover:bg-transparent hover:text-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
+            className="absolute right-3 top-3 z-[3] flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-white transition-[opacity,background-color] hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
           >
             <svg
               width="18"
@@ -563,7 +580,7 @@ function SiteHoverInsightCard({
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              className="pointer-events-none"
+              className="pointer-events-none shrink-0 opacity-90"
               aria-hidden
             >
               <path
@@ -578,14 +595,15 @@ function SiteHoverInsightCard({
         ) : null}
 
         {/* Sticky top: permit id, project, address — stays visible while body scrolls */}
-        <header className="sticky top-0 z-[2] shrink-0 border-b border-white/15 bg-[var(--surface-glass)]/95 px-4 pb-3 pt-4 backdrop-blur-md">
+        {/* bg-transparent: avoid a second layer of --surface-glass-panel on top of the aside (that stacking made header/footer look nearly solid). Blur still smears content that scrolls underneath. */}
+        <header className="sticky top-0 z-[2] shrink-0 bg-transparent px-4 pb-3 pt-4 backdrop-blur-xl backdrop-saturate-150">
           <div
             className={`flex flex-wrap items-center gap-2 ${mapZoom ? "pr-10" : ""}`}
           >
-            <p className="text-[10px] font-semibold leading-none tracking-wide text-white">
+            <p className="text-[calc(10px+1pt)] font-semibold leading-none tracking-wide text-white">
               PERMIT #{detail.id}
             </p>
-            <span className="max-w-[11rem] rounded-[3px] bg-white px-1.5 py-[3px] text-[9px] font-semibold leading-tight text-black">
+            <span className="max-w-[11rem] text-[calc(9px+1pt)] font-semibold uppercase leading-tight tracking-wide text-white">
               {detail.typeTag.toUpperCase()}
             </span>
           </div>
@@ -602,12 +620,14 @@ function SiteHoverInsightCard({
         {/* Scrolls between header and sticky actions */}
         <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-3">
           <div className="flex flex-col gap-1">
-            <p className="text-[10px] font-semibold leading-none text-white">
+            <p className="text-[calc(10px+1pt)] font-semibold leading-none text-white">
               Live site status
             </p>
             <div className="flex items-start gap-1.5">
+              {/* Fill matches permit health band (same as map pin + AI insight), not liveSiteStatus.tone */}
               <span
-                className={`mt-1 box-border size-2.5 shrink-0 rounded-full border-2 border-white ${liveStatusDotClass(detail.liveSiteStatus.tone)}`}
+                className="mt-1 box-border size-2.5 shrink-0 rounded-full border-2 border-black/65"
+                style={{ backgroundColor: aiInsightSurface.backgroundColor }}
                 aria-hidden
               />
               <p className="text-[13px] font-semibold leading-5 text-white">
@@ -616,21 +636,27 @@ function SiteHoverInsightCard({
             </div>
           </div>
 
-          <div className="mt-4 flex flex-col gap-1 rounded-md bg-[#eed000] px-3 py-2.5">
-            <p className="text-[9px] font-bold leading-none text-black">
+          <div
+            className={`mt-4 flex flex-col gap-1 rounded-md px-3 py-2.5 ${aiInsightSurface.textClass}`}
+            style={{ backgroundColor: aiInsightSurface.backgroundColor }}
+          >
+            <p className="text-[calc(9px+1pt)] font-bold leading-none">
               AI insight
             </p>
-            <p className="text-xs font-medium leading-[18px] text-black">
+            <p className="text-xs font-medium leading-[18px]">
               {detail.aiInsight}
             </p>
           </div>
 
-          <div className="my-4 h-px w-full bg-white/25" aria-hidden />
+          <div
+            className="my-4 h-px w-[calc(100%+2rem)] shrink-0 bg-[var(--divider-subtle)] -mx-4"
+            aria-hidden
+          />
 
           <div className="flex flex-col gap-3">
             <div className="flex items-start justify-between gap-3">
               <div className="flex min-w-0 flex-col gap-0.5">
-                <p className="text-[10px] font-medium text-white">
+                <p className="text-[calc(10px+1pt)] font-medium text-white">
                   Last inspection
                 </p>
                 <p className="text-xs font-semibold leading-[18px] text-white">
@@ -638,7 +664,7 @@ function SiteHoverInsightCard({
                 </p>
               </div>
               <div className="flex min-w-0 flex-col gap-0.5 text-right">
-                <p className="text-[10px] font-medium text-white">
+                <p className="text-[calc(10px+1pt)] font-medium text-white">
                   Permit expires
                 </p>
                 <p className="text-xs font-semibold leading-[18px] text-white">
@@ -648,13 +674,13 @@ function SiteHoverInsightCard({
             </div>
             <div className="flex items-start justify-between gap-3">
               <div className="flex min-w-0 flex-col gap-0.5">
-                <p className="text-[10px] font-medium text-white">Contractor</p>
+                <p className="text-[calc(10px+1pt)] font-medium text-white">Contractor</p>
                 <p className="text-xs font-semibold leading-[18px] text-white">
                   {detail.contractor}
                 </p>
               </div>
               <div className="flex min-w-0 flex-col gap-0.5 text-right">
-                <p className="text-[10px] font-medium text-white">
+                <p className="text-[calc(10px+1pt)] font-medium text-white">
                   Open violations
                 </p>
                 <p className="text-xs font-semibold leading-[18px] text-white">
@@ -665,13 +691,13 @@ function SiteHoverInsightCard({
           </div>
 
           <div className="mt-4 flex flex-col gap-1.5">
-            <div className="flex items-center justify-between text-[10px]">
+            <div className="flex items-center justify-between text-[calc(10px+1pt)]">
               <p className="font-medium text-white">Days remaining on permit</p>
               <p className="font-semibold tabular-nums text-white">
                 {daysRemaining} / {detail.permitDaysTotal}
               </p>
             </div>
-            <div className="h-1 w-full overflow-hidden rounded-sm bg-[#38342a]">
+            <div className="h-1 w-full overflow-hidden rounded-sm bg-white">
               <div
                 className="h-full rounded-sm bg-[#eed000]"
                 style={{ width: `${permitBarFill * 100}%` }}
@@ -679,10 +705,13 @@ function SiteHoverInsightCard({
             </div>
           </div>
 
-          <div className="my-4 h-px w-full bg-white/25" aria-hidden />
+          <div
+            className="my-4 h-px w-[calc(100%+2rem)] shrink-0 bg-[var(--divider-subtle)] -mx-4"
+            aria-hidden
+          />
 
           <div className="flex flex-col gap-1.5">
-            <p className="text-[10px] font-semibold text-white">Details</p>
+            <p className="text-[calc(10px+1pt)] font-semibold text-white">Details</p>
 
             <button
               type="button"
@@ -695,7 +724,7 @@ function SiteHoverInsightCard({
                 <p className="text-[13px] font-semibold text-white">
                   {DRILL_SECTION_LABELS.health}
                 </p>
-                <p className="mt-0.5 text-[10px] leading-snug text-white/75">
+                <p className="mt-0.5 text-[calc(11px+1pt)] leading-snug text-[var(--text-secondary)]">
                   {permitHealthPreviewLine(detail)}
                 </p>
               </div>
@@ -713,7 +742,7 @@ function SiteHoverInsightCard({
                 <p className="text-[13px] font-semibold text-white">
                   {DRILL_SECTION_LABELS.journey}
                 </p>
-                <p className="mt-0.5 text-[10px] leading-snug text-white/75">
+                <p className="mt-0.5 text-[calc(11px+1pt)] leading-snug text-[var(--text-secondary)]">
                   Current: {journeyCurrentLabel(detail)}
                 </p>
               </div>
@@ -731,7 +760,7 @@ function SiteHoverInsightCard({
                 <p className="text-[13px] font-semibold text-white">
                   {DRILL_SECTION_LABELS.reviews}
                 </p>
-                <p className="mt-0.5 text-[10px] leading-snug text-white/75">
+                <p className="mt-0.5 text-[calc(11px+1pt)] leading-snug text-[var(--text-secondary)]">
                   {detail.reviews.length} departments · tap for status by desk
                 </p>
               </div>
@@ -749,7 +778,7 @@ function SiteHoverInsightCard({
                 <p className="text-[13px] font-semibold text-white">
                   {DRILL_SECTION_LABELS.inspections}
                 </p>
-                <p className="mt-0.5 text-[10px] leading-snug text-white/75">
+                <p className="mt-0.5 text-[calc(11px+1pt)] leading-snug text-[var(--text-secondary)]">
                   {detail.inspections.length} types · mostly blocked until
                   issuance
                 </p>
@@ -768,7 +797,7 @@ function SiteHoverInsightCard({
                 <p className="text-[13px] font-semibold text-white">
                   {DRILL_SECTION_LABELS.documents}
                 </p>
-                <p className="mt-0.5 text-[10px] leading-snug text-white/75">
+                <p className="mt-0.5 text-[calc(11px+1pt)] leading-snug text-[var(--text-secondary)]">
                   {detail.documents.length} on file ·{" "}
                   {documentsAttentionSummary(detail)}
                 </p>
@@ -779,24 +808,24 @@ function SiteHoverInsightCard({
         </div>
 
         {/* Sticky bottom: primary CTA + secondary links stay visible */}
-        <footer className="sticky bottom-0 z-[2] shrink-0 border-t border-white/15 bg-[var(--surface-glass)]/95 px-4 pb-4 pt-3 backdrop-blur-md">
+        <footer className="sticky bottom-0 z-[2] shrink-0 bg-transparent px-4 pb-4 pt-3 backdrop-blur-xl backdrop-saturate-150">
           <button
             type="button"
-            className="flex h-10 w-full items-center justify-center rounded-lg bg-white text-[13px] font-semibold text-black transition-all duration-200 ease-out hover:-translate-y-px hover:bg-neutral-200 hover:shadow-[0_4px_14px_rgba(0,0,0,0.22)] hover:ring-2 hover:ring-black/15 active:translate-y-0 active:bg-neutral-300 active:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black/50"
+            className="flex h-10 w-full items-center justify-center rounded-lg bg-blue-600 text-[13px] font-semibold text-white shadow-sm transition-all duration-200 ease-out hover:-translate-y-px hover:bg-blue-700 hover:shadow-md active:translate-y-0 active:brightness-95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
           >
             {detail.primaryCtaLabel}
           </button>
 
-          <div className="mt-2.5 flex items-center justify-between gap-2 text-[11px] font-medium text-white">
+          <div className="mt-2.5 flex items-center justify-between gap-2 text-[11px] font-medium">
             <button
               type="button"
-              className="min-w-0 truncate rounded-md px-2 py-1.5 text-left underline-offset-2 transition-colors duration-150 hover:bg-white/20 hover:underline hover:decoration-2"
+              className="min-w-0 truncate bg-transparent px-0 py-1 text-left text-[11px] font-medium text-white underline decoration-white/70 underline-offset-2 transition-[text-decoration-color,text-decoration-thickness] hover:decoration-white hover:decoration-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40"
             >
               View activity history
             </button>
             <button
               type="button"
-              className="min-w-0 shrink-0 rounded-md px-2 py-1.5 text-right underline-offset-2 transition-colors duration-150 hover:bg-white/20 hover:underline hover:decoration-2"
+              className="min-w-0 shrink-0 bg-transparent px-0 py-1 text-right text-[11px] font-medium text-white underline decoration-white/70 underline-offset-2 transition-[text-decoration-color,text-decoration-thickness] hover:decoration-white hover:decoration-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40"
             >
               Open permit docs ↗
             </button>
@@ -810,9 +839,9 @@ function SiteHoverInsightCard({
           id={drillPanelId}
           role="region"
           aria-label={DRILL_SECTION_LABELS[drillSection]}
-          className="w-full max-h-[min(52vh,calc(0.62*_(100vh_-_3rem)))] min-w-0 overflow-y-auto overflow-x-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-glass)] p-4 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-md sm:w-[min(28rem,calc(100vw-1.25rem))]"
+          className="w-full max-h-[min(52vh,calc(0.62*_(100vh_-_3rem)))] min-w-0 overflow-y-auto overflow-x-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-glass-panel)] p-4 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-md sm:w-[min(28rem,calc(100vw-1.25rem))]"
         >
-          <div className="flex items-start justify-between gap-2 border-b border-white/15 pb-2.5">
+          <div className="-mx-4 flex items-start justify-between gap-2 border-b border-[var(--divider-subtle)] px-4 pb-2.5">
             <h3 className="text-sm font-bold text-white">
               {DRILL_SECTION_LABELS[drillSection]}
             </h3>
@@ -820,7 +849,7 @@ function SiteHoverInsightCard({
               ref={drillCloseRef}
               type="button"
               onClick={() => onDrillSectionChange(null)}
-              className="shrink-0 rounded-lg border border-white/30 px-2 py-1 text-[10px] font-semibold text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
+              className="shrink-0 bg-transparent px-0 py-0.5 text-[calc(10px+1pt)] font-semibold text-white underline decoration-white/70 underline-offset-2 transition-[text-decoration-color,text-decoration-thickness] hover:decoration-white hover:decoration-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
             >
               Close
             </button>
@@ -849,8 +878,8 @@ function SiteHoverInsightCardMissingData({
   const cardMotionStyle = {
     opacity: isOpen ? 1 : 0,
     transform: isOpen
-      ? "translate3d(0, calc(-50% + 5rem), 0)"
-      : "translate3d(0, calc(-50% + 5rem + 5rem), 0)",
+      ? "translate3d(0, calc(-50% + 2rem), 0)"
+      : "translate3d(0, calc(-50% + 2rem + 5rem), 0)",
     transition: `opacity ${PERMIT_CARD_TRANSITION_MS}ms ease-in-out, transform ${PERMIT_CARD_TRANSITION_MS}ms ease-in-out`,
   } as const;
 
@@ -890,17 +919,48 @@ function InactiveSiteMarker({ site }: { site: InactiveSite }) {
     ? getPermitDetailRecord(site.permitDetailId)
     : undefined;
   const [cardOpen, setCardOpen] = useState(false);
+  /* While the card fades/slides closed, keep this marker stack above other pins — otherwise z drops to 6 immediately and neighbors paint on top of the glass card. */
+  const [isExitAnimationPending, setIsExitAnimationPending] = useState(false);
   const [drillSection, setDrillSection] = useState<PermitCardDrillSection | null>(
     null,
   );
   const mapZoom = useMapZoomOptional();
   const markerRootRef = useRef<HTMLDivElement>(null);
   const missingCardShellRef = useRef<HTMLDivElement>(null);
+  const wasCardOpenRef = useRef(false);
+  const exitElevateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const toggleCard = useCallback(() => {
     if (!showInsightCard) return;
     setCardOpen((open) => !open);
   }, [showInsightCard]);
+
+  useEffect(() => {
+    if (cardOpen) {
+      if (exitElevateTimerRef.current !== null) {
+        clearTimeout(exitElevateTimerRef.current);
+        exitElevateTimerRef.current = null;
+      }
+      setIsExitAnimationPending(false);
+      wasCardOpenRef.current = true;
+    } else {
+      if (wasCardOpenRef.current) {
+        setIsExitAnimationPending(true);
+        exitElevateTimerRef.current = setTimeout(() => {
+          setIsExitAnimationPending(false);
+          exitElevateTimerRef.current = null;
+        }, PERMIT_CARD_TRANSITION_MS);
+      }
+      wasCardOpenRef.current = false;
+    }
+
+    return () => {
+      if (exitElevateTimerRef.current !== null) {
+        clearTimeout(exitElevateTimerRef.current);
+        exitElevateTimerRef.current = null;
+      }
+    };
+  }, [cardOpen]);
 
   /* Collapse drill-down when the main permit card closes */
   useEffect(() => {
@@ -957,11 +1017,12 @@ function InactiveSiteMarker({ site }: { site: InactiveSite }) {
   } as const;
 
   if (showInsightCard) {
-    // Open permit card: raise this marker so the popover paints above every other pin (they share z-[6]).
+    const elevateMarkerStack = cardOpen || isExitAnimationPending;
+    // Open (or exiting) permit card: keep this whole stack above every other pin until the close animation ends.
     return (
       <div
         ref={markerRootRef}
-        className={`pointer-events-auto absolute flex justify-center ${cardOpen ? "z-[60]" : "z-[6]"}`}
+        className={`pointer-events-auto absolute flex justify-center ${elevateMarkerStack ? "z-[60]" : "z-[6]"}`}
         style={positionStyle}
       >
         <button
@@ -1016,7 +1077,7 @@ export function InactiveSiteMarkers() {
     <div
       className="pointer-events-none absolute inset-0 z-[5]"
       role="group"
-      aria-label="Inactive construction sites on the map; each marker shows a health score in a color-coded circle; the west hotspot opens permit details when activated"
+      aria-label="Inactive construction sites on the map; each marker shows a health score; six pins open full permit detail cards (BP-0441, BP-0387, BP-0512, BP-0298, BP-0463, BP-0501)"
     >
       {visibleSites.map((site) => (
         <InactiveSiteMarker key={site.id} site={site} />

@@ -7,11 +7,25 @@
   --text-primary: #ffffff;
   --text-secondary: #d1d5db;
   --text-muted: #8e9297;
-  --border-subtle: rgba(255, 255, 255, 0.1);
+  /* Dark rim on frosted panels (reads as depth vs a white hairline on dark UI). */
+  --border-subtle: rgba(0, 0, 0, 0.5);
+  /* Hairlines inside cards — lighter than the outer rim so sections read softly. */
+  --divider-subtle: rgba(255, 255, 255, 0.12);
   --surface-glass: rgba(255, 255, 255, 0.06);
+  /*
+   * Permit map card: dark tint from shell-bg for stable text contrast; sticky header/footer use
+   * the same token with stronger backdrop-blur so the card reads as one surface, not three bands.
+   */
+  --surface-glass-panel: color-mix(in srgb, var(--shell-bg) 76%, transparent);
   --nav-pill-active: #374151;
   --accent-trend: #00c853;
   --accent-selection: #d4ff00;
+
+  /*
+   * Map chrome labels/buttons use Tailwind `bg-white` + `text-neutral-950` and `bg-blue-600` /
+   * `hover:bg-blue-700` in components (not CSS vars in arbitrary `bg-[var(--…)]`) so Tailwind v4
+   * always includes those utilities in the bundle.
+   */
 
   /*
    * Activity heat — style guide: Tertiary — crimson (DM) + Danger (bright red / rose).
@@ -51,4 +65,38 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/*
+ * Scrollbar track = black (per UI direction). Firefox: thumb + track via scrollbar-color.
+ * WebKit: track/corner explicit; thumb stays light so it stays visible on black.
+ */
+* {
+  scrollbar-color: rgba(255, 255, 255, 0.35) #000000;
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+  background: #000000;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --surface-glass-panel: color-mix(in srgb, var(--shell-bg) 94%, transparent);
+  }
 }

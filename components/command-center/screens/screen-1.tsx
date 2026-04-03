@@ -4,7 +4,7 @@ import { InactiveSiteMarkers } from "@/components/command-center/inactive-site-m
 import { MapChromeBoundsProvider } from "@/components/command-center/map-chrome-bounds-context";
 import { MapKpiLayer } from "@/components/command-center/map-kpi-layer";
 import { MapZoomProvider } from "@/components/command-center/map-zoom-context";
-import { MapCanvas } from "@/components/command-center/map-canvas";
+import { MapBasemapSlot, MapCanvas } from "@/components/command-center/map-canvas";
 import { PermitFilterProvider } from "@/components/command-center/permit-filter-context";
 import { CITY_MAP_METRICS } from "@/lib/city-map-metrics";
 import { INACTIVE_SITES } from "@/lib/inactive-sites";
@@ -19,7 +19,7 @@ export function Screen1() {
     <div className="fixed inset-0 overflow-hidden bg-[var(--shell-bg)] text-white">
       <PermitFilterProvider allSites={INACTIVE_SITES}>
         <MapChromeBoundsProvider>
-          <MapZoomProvider>
+          <MapZoomProvider basemap={<MapBasemapSlot />}>
             <MapCanvas>
               <HeatLayer />
               <MapKpiLayer />

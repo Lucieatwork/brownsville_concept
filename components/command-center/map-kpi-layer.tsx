@@ -164,23 +164,31 @@ type KpiChipProps = {
 };
 
 /**
- * One stat in the bottom strip: big number on the left; header (label) and supporting copy (hint) on the right.
+ * One stat in the bottom strip: white label pill first, then value, then hint (wrapped, no ellipsis).
  */
 function KpiChip({ label, value, hint }: KpiChipProps) {
   return (
-    <div className="flex min-w-0 flex-1 basis-0 flex-row items-start gap-1.5 overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[color-mix(in_srgb,var(--surface-glass)_92%,transparent)] px-1.5 py-2 shadow-[0_4px_20px_rgba(0,0,0,0.25)] backdrop-blur-md sm:gap-2 sm:rounded-xl sm:px-2 sm:py-2.5">
-      <p
-        className="max-w-[min(46%,8.25rem)] shrink-0 truncate text-base font-semibold leading-tight tracking-tight text-white tabular-nums sm:max-w-[min(44%,9.75rem)] sm:text-lg md:max-w-[min(42%,11rem)] md:text-xl"
-        title={value}
-      >
-        {value}
-      </p>
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="block text-[9px] font-medium uppercase leading-tight tracking-wide text-white sm:text-[10px] md:text-xs line-clamp-2">
+    <div className="relative flex min-h-[6.25rem] min-w-0 flex-1 basis-0 flex-col overflow-hidden rounded-lg border border-[var(--border-subtle)] shadow-[0_8px_32px_rgba(0,0,0,0.35)] sm:min-h-[7rem] sm:rounded-xl md:min-h-[7.5rem]">
+      {/* Match AI brief / permit card: one frosted plate per chip */}
+      <div
+        className="pointer-events-none absolute inset-0 rounded-lg bg-[var(--surface-glass-panel)] backdrop-blur-xl backdrop-saturate-150 sm:rounded-xl"
+        aria-hidden
+      />
+      <div className="relative z-[1] flex min-h-0 min-w-0 flex-1 flex-col gap-2 px-2 py-2.5 sm:px-2.5 sm:py-3">
+        {/* Metric name: white pill, black type — matches AI brief / chat label chips */}
+        <span className="inline-flex min-h-6 w-fit max-w-full shrink-0 items-center justify-center rounded-md bg-white px-2.5 py-1 text-center text-[11px] font-medium uppercase leading-none tracking-wide text-neutral-950 [overflow-wrap:anywhere] sm:px-3 sm:py-1.5">
           {label}
         </span>
+        {/* Full-bleed hairline: cancel chip horizontal padding so the rule spans card inner edge to edge */}
+        <div
+          className="h-px w-[calc(100%+1rem)] shrink-0 bg-[var(--divider-subtle)] sm:w-[calc(100%+1.25rem)] -mx-2 sm:-mx-2.5"
+          aria-hidden
+        />
+        <p className="w-full shrink-0 text-base font-semibold leading-snug tracking-tight text-white tabular-nums [overflow-wrap:anywhere] sm:text-lg md:text-xl">
+          {value}
+        </p>
         {hint ? (
-          <p className="mt-0.5 line-clamp-2 text-[9px] leading-snug text-white sm:text-[10px] md:text-xs">
+          <p className="min-w-0 text-[9px] leading-snug text-white [overflow-wrap:anywhere] sm:text-[10px] md:text-xs">
             {hint}
           </p>
         ) : null}
@@ -244,12 +252,6 @@ function RegionalBadge({
   staggerIndex,
   staggerCount,
 }: RegionalBadgeProps) {
-  /* Risk line: light pill on semi-transparent black card. */
-  const riskStyles =
-    riskLevel === "Elevated"
-      ? "text-[var(--heat-hot)]"
-      : "text-white";
-
   /* Enter: west → south → east (0, 1, 2…). Exit: reverse so the last one in eases out first — overlap on both. */
   const staggerDelayMs = isVisible
     ? staggerIndex * REGIONAL_STAGGER_MS
@@ -275,26 +277,36 @@ function RegionalBadge({
       }
     >
       <div
-        className={`${montserrat.className} max-w-[min(15rem,42vw)] rounded-xl border border-white/15 bg-black/60 px-4 py-3.5 shadow-[0_8px_28px_rgba(0,0,0,0.35)] backdrop-blur-sm will-change-[opacity,transform]`}
+        className={`${montserrat.className} relative max-w-[min(15rem,42vw)] overflow-hidden rounded-xl border border-[var(--border-subtle)] shadow-[0_8px_32px_rgba(0,0,0,0.35)] will-change-[opacity,transform]`}
         style={motionStyle}
         aria-hidden={!isVisible}
       >
-        <p className="text-sm font-semibold leading-tight text-white sm:text-[15px]">
-          {label}
-        </p>
-        <p className="mt-2 text-xs leading-snug text-white sm:text-[13px]">
-          {inactiveNearby} inactive nearby
-        </p>
-        <p className="mt-1.5 text-xs font-medium leading-snug sm:text-[13px]">
-          <span
-            className={`inline-block rounded-md px-2 py-1 [box-decoration-break:clone] bg-white/15 ${riskStyles}`}
-          >
-            Risk: {riskLevel}
-          </span>
-        </p>
-        <p className="mt-1.5 text-xs leading-snug text-white sm:text-[13px]">
-          Delays {delayVsCity}
-        </p>
+        <div
+          className="pointer-events-none absolute inset-0 rounded-xl bg-[var(--surface-glass-panel)] backdrop-blur-xl backdrop-saturate-150"
+          aria-hidden
+        />
+        <div className="relative z-[1] px-4 py-3.5">
+          <p className="text-sm font-semibold leading-tight text-white sm:text-[15px]">
+            {label}
+          </p>
+          <p className="mt-2 text-xs leading-snug text-white sm:text-[13px]">
+            {inactiveNearby} inactive nearby
+          </p>
+          <p className="mt-1.5 text-xs font-medium leading-snug sm:text-[13px]">
+            <span
+              className={`inline-block rounded-md bg-white px-2.5 py-1 [box-decoration-break:clone] text-[11px] sm:text-xs ${
+                riskLevel === "Elevated"
+                  ? "font-semibold text-[var(--heat-hot)]"
+                  : "text-neutral-950"
+              }`}
+            >
+              Risk: {riskLevel}
+            </span>
+          </p>
+          <p className="mt-1.5 text-xs leading-snug text-white sm:text-[13px]">
+            Delays {delayVsCity}
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -386,15 +398,16 @@ export function MapKpiLayer() {
                 <button
                   type="button"
                   onClick={cycleKpiView}
-                  className="group flex min-h-12 min-w-12 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-full border border-white/15 bg-[color-mix(in_srgb,var(--surface-glass)_40%,transparent)] px-2 shadow-[0_2px_16px_rgba(0,0,0,0.35)] backdrop-blur-sm transition-[background-color,opacity,transform] duration-200 ease-out hover:border-white/30 hover:bg-[color-mix(in_srgb,var(--surface-glass)_65%,#0a0c14)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:scale-[0.97]"
+                  className="group flex min-h-12 min-w-12 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-full bg-blue-600 px-2 text-white shadow-md transition-[background-color,transform] duration-200 ease-out hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:scale-[0.97]"
                   aria-label={`Cycle KPI strip. Now showing: ${kpiViewModeTitle(kpiViewMode)}. Next: ${kpiViewModeTitle(nextKpiViewMode(kpiViewMode))}.`}
                 >
-                  <span className="opacity-90 group-hover:opacity-100" aria-hidden>
-                    <KpiViewToggleIcon mode={kpiViewMode} />
-                  </span>
-                  {/* Short label so the control reads as “analytics themes,” not a generic icon. */}
-                  <span className="max-w-[3.25rem] text-center text-[9px] font-semibold uppercase leading-tight tracking-wide text-white">
-                    {kpiViewMode === "default" ? "Ops" : kpiViewMode === "investment" ? "Growth" : kpiViewMode === "risk" ? "Risk" : "Action"}
+                  <span className="flex flex-col items-center justify-center gap-0.5">
+                    <span className="opacity-95 group-hover:opacity-100" aria-hidden>
+                      <KpiViewToggleIcon mode={kpiViewMode} />
+                    </span>
+                    <span className="max-w-[3.25rem] text-center text-[9px] font-semibold uppercase leading-tight tracking-wide text-white">
+                      {kpiViewMode === "default" ? "Ops" : kpiViewMode === "investment" ? "Growth" : kpiViewMode === "risk" ? "Risk" : "Action"}
+                    </span>
                   </span>
                 </button>
 
@@ -402,21 +415,17 @@ export function MapKpiLayer() {
                   type="button"
                   onClick={toggleRegionalCards}
                   aria-expanded={regionalCardsExpanded}
-                  className="group flex min-h-12 min-w-12 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-[color-mix(in_srgb,var(--surface-glass)_40%,transparent)] shadow-[0_2px_16px_rgba(0,0,0,0.35)] backdrop-blur-sm transition-[background-color,opacity,transform] duration-200 ease-out hover:border-white/30 hover:bg-[color-mix(in_srgb,var(--surface-glass)_65%,#0a0c14)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:scale-[0.97]"
+                  className="group flex min-h-12 min-w-12 cursor-pointer items-center justify-center rounded-full bg-blue-600 text-white shadow-md transition-[background-color,transform] duration-200 ease-out hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:scale-[0.97]"
                   aria-label={
                     regionalCardsExpanded
                       ? "Hide the three regional map summaries."
                       : "Show west, south, and east regional map summaries in sequence with overlapping animation. Click again to hide in reverse order."
                   }
                 >
-                  {/* Three dots hint at three zones; keep the surface mostly empty so it reads as a hotspot. */}
-                  <span
-                    className="flex gap-1 opacity-70 group-hover:opacity-100"
-                    aria-hidden
-                  >
-                    <span className="size-1.5 rounded-full bg-white/80" />
-                    <span className="size-1.5 rounded-full bg-white/80" />
-                    <span className="size-1.5 rounded-full bg-white/80" />
+                  <span className="flex gap-1 opacity-90 group-hover:opacity-100" aria-hidden>
+                    <span className="size-1.5 rounded-full bg-white" />
+                    <span className="size-1.5 rounded-full bg-white" />
+                    <span className="size-1.5 rounded-full bg-white" />
                   </span>
                 </button>
               </div>

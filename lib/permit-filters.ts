@@ -7,6 +7,7 @@ export const PERMIT_STATUSES = [
   "Submitted",
   "Pending",
   "Approved",
+  "Issued",
   "Expired",
 ] as const;
 

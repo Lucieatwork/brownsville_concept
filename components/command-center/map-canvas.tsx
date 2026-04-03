@@ -1,51 +1,43 @@
 "use client";
 
+import { MapboxBasemap } from "@/components/command-center/mapbox-basemap";
 import { MapManualPanSurface } from "@/components/command-center/map-manual-pan-surface";
-import Image from "next/image";
-import { useCallback, useState } from "react";
 
 type MapCanvasProps = {
-  /** Heat blobs, vignettes, etc. sit above the map image. */
+  /** Heat blobs, KPI pins, etc. sit above the basemap (basemap is passed to `MapZoomProvider`). */
   children?: React.ReactNode;
 };
 
 /**
- * Full-bleed background: PRD map asset `/brownsville_map.png`, or a neutral
- * placeholder if the file is not in `public/` yet (no silent failure in UI).
+ * Map + token message for `MapZoomProvider`’s `basemap` slot — kept **outside** the scaled
+ * overlay layer so Mapbox WebGL is not affected by the permit-card `scale()` transform.
  */
-export function MapCanvas({ children }: MapCanvasProps) {
-  const [mapLoadFailed, setMapLoadFailed] = useState(false);
-
-  const handleImageError = useCallback(() => {
-    setMapLoadFailed(true);
-  }, []);
+export function MapBasemapSlot() {
+  const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN ?? "";
 
   return (
-    <div className="absolute inset-0 bg-[var(--shell-bg)]">
-      {/* Base tone when the map is missing or still loading */}
+    <>
+      {/* Base tone while WebGL initializes */}
       <div
         className="absolute inset-0 bg-[var(--map-fallback-bg)]"
         aria-hidden
       />
-
-      {!mapLoadFailed ? (
-        <div className="absolute inset-0">
-          <Image
-            src="/brownsville_map.png"
-            alt=""
-            fill
-            className="object-cover opacity-[0.92]"
-            sizes="100vw"
-            priority
-            /* Serves `/brownsville_map.png` directly; avoids `/_next/image?...` if the optimizer misbehaves in your environment. */
-            unoptimized
-            onError={handleImageError}
-          />
-        </div>
+      {mapboxToken ? (
+        <MapboxBasemap accessToken={mapboxToken} />
       ) : (
-        <MapFallback />
+        <MapboxTokenMissing />
       )}
+    </>
+  );
+}
 
+/**
+ * Overlays only: vignette, drag surface, heat, pins. Pair with `basemap={<MapBasemapSlot />}` on
+ * `MapZoomProvider`. Token: `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` in `.env.local`.
+ */
+export function MapCanvas({ children }: MapCanvasProps) {
+  return (
+    <div className="absolute inset-0">
       {/* Slight darken so overlays (heat) read more clearly */}
       <div
         className="pointer-events-none absolute inset-0 bg-black/25"
@@ -60,24 +52,26 @@ export function MapCanvas({ children }: MapCanvasProps) {
   );
 }
 
-/** Visible when `public/brownsville_map.png` is absent — still feels like a map surface. */
-function MapFallback() {
+/** Shown when the public Mapbox token env var is not set — avoids a silent blank map. */
+function MapboxTokenMissing() {
   return (
     <div
-      className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-[#0d1118] via-[#080a10] to-[#121820] px-6 text-center"
-      role="img"
-      aria-label="Map placeholder: add brownsville_map.png to public folder"
+      className="absolute inset-0 z-[1] flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-[#0d1118] via-[#080a10] to-[#121820] px-6 text-center"
+      role="status"
+      aria-label="Mapbox token required"
     >
       <div
-        className="h-px w-48 bg-[var(--border-subtle)] opacity-60"
+        className="h-px w-48 bg-white/10 opacity-80"
         aria-hidden
       />
       <p className="max-w-sm text-sm leading-relaxed text-[var(--text-muted)]">
-        Drop your map file at{" "}
+        Add your Mapbox public token to{" "}
         <span className="font-mono text-[var(--text-secondary)]">
-          public/brownsville_map.png
+          NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
         </span>{" "}
-        for the full-bleed background.
+        in <span className="font-mono text-[var(--text-secondary)]">.env.local</span>{" "}
+        (restart <span className="font-mono text-[var(--text-secondary)]">npm run dev</span>{" "}
+        after saving).
       </p>
     </div>
   );

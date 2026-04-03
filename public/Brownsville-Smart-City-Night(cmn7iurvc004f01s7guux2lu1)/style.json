@@ -1,0 +1,39 @@
+{
+    "version": 8,
+    "name": "Brownsville Smart City - Night",
+    "metadata": {
+        "mapbox:sdk-support": {
+            "js": "3.19.0",
+            "android": "11.19.0",
+            "ios": "11.19.0"
+        }
+    },
+    "center": [-97.4975, 25.9017],
+    "zoom": 14.5,
+    "bearing": -15,
+    "pitch": 60,
+    "imports": [
+        {
+            "id": "basemap",
+            "url": "mapbox://styles/mapbox/standard",
+            "config": {
+                "lightPreset": "night",
+                "showPlaceLabels": true,
+                "showPointOfInterestLabels": false,
+                "showTransitLabels": false,
+                "show3dObjects": true
+            }
+        }
+    ],
+    "sources": {},
+    "sprite": "mapbox://sprites/lucie-c/cmn7iurvc004f01s7guux2lu1/ck2u8j60r58fu0sgyxrigm3cu",
+    "glyphs": "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
+    "layers": [],
+    "created": "2026-03-26T13:42:15.960Z",
+    "modified": "2026-03-26T13:42:15.960Z",
+    "id": "cmn7iurvc004f01s7guux2lu1",
+    "owner": "lucie-c",
+    "visibility": "private",
+    "protected": false,
+    "draft": false
+}

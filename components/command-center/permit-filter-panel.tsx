@@ -17,6 +17,7 @@ import {
   useRef,
   useState,
   type ComponentPropsWithoutRef,
+  type FormEvent,
 } from "react";
 
 /** Widest one-line label among placeholder + option strings — drives popover `min-width` in `ch`. */
@@ -41,7 +42,7 @@ const filterPopoverMinCh = longestFilterTextChars + 6;
  * chrome (`appearance-none`) and draw our own chevron inset from the right edge.
  */
 const selectClassName =
-  "w-full cursor-pointer rounded-lg border border-white/15 bg-black/25 py-2 pl-2.5 pr-10 text-xs text-white appearance-none focus:border-white/35 focus:outline-none focus:ring-1 focus:ring-white/25";
+  "w-full cursor-pointer rounded-lg border border-[var(--border-subtle)] bg-[color-mix(in_srgb,var(--surface-glass-panel)_45%,#0a0c14)] py-2 pl-2.5 pr-10 text-xs text-white appearance-none focus:border-white/35 focus:outline-none focus:ring-1 focus:ring-white/25";
 
 function SelectChevron() {
   return (
@@ -86,10 +87,6 @@ const FacetedSelect = forwardRef<
 });
 FacetedSelect.displayName = "FacetedSelect";
 
-/** Search bar in the top row — same height and glass treatment as the Filters chip. */
-const searchBarClassName =
-  "h-10 w-full min-w-0 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-glass)] px-3 text-xs text-white shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-md placeholder:text-[var(--text-muted)] focus:border-white/35 focus:outline-none focus:ring-1 focus:ring-white/25";
-
 /** Simple funnel icon — reads as “filters” without adding an icon package. */
 function FilterIcon({ className }: { className?: string }) {
   return (
@@ -129,11 +126,33 @@ function CloseIcon({ className }: { className?: string }) {
   );
 }
 
+/** Magnifying glass — pairs with the search field (same stroke weight as `FilterIcon`). */
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width={18}
+      height={18}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" />
+    </svg>
+  );
+}
+
 /**
  * Search stays always visible next to an icon-only filter control; dropdown facets open in a popover.
  */
 export function PermitFilterPanel() {
   const rootRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const statusSelectRef = useRef<HTMLSelectElement>(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -176,6 +195,16 @@ export function PermitFilterPanel() {
 
   const toggle = useCallback(() => setIsOpen((o) => !o), []);
 
+  /* Submit (button or Enter): trim whitespace so filters match intent; blur so focus returns to the page. */
+  const onSearchSubmit = useCallback(
+    (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setSearchQuery(searchQuery.trim());
+      searchInputRef.current?.blur();
+    },
+    [searchQuery, setSearchQuery],
+  );
+
   /* Click outside closes the popover (capture phase so it runs before map drag handlers). */
   useEffect(() => {
     if (!isOpen) return;
@@ -214,15 +243,40 @@ export function PermitFilterPanel() {
         <label htmlFor={searchId} className="sr-only">
           Search permits by number, site name, or address
         </label>
-        <input
-          id={searchId}
-          type="search"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search permits…"
-          autoComplete="off"
-          className={searchBarClassName}
-        />
+        {/* No border stroke; focus = soft glow only. Native search UI can add a blue ring — stripped on the input below. */}
+        <div className="relative rounded-2xl border-0 shadow-[0_8px_32px_rgba(0,0,0,0.35)] transition-[box-shadow] duration-200 ease-out focus-within:shadow-[0_8px_32px_rgba(0,0,0,0.35),0_0_20px_5px_rgba(255,255,255,0.14),0_0_40px_12px_rgba(255,255,255,0.06)]">
+          <div
+            className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl bg-[var(--surface-glass-panel)] backdrop-blur-xl backdrop-saturate-150"
+            aria-hidden
+          />
+          <form
+            className="relative z-[1] flex min-w-0 items-stretch outline-none"
+            onSubmit={onSearchSubmit}
+          >
+            <input
+              ref={searchInputRef}
+              id={searchId}
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search permits…"
+              autoComplete="off"
+              className="h-10 min-w-0 flex-1 appearance-none rounded-l-2xl border-0 bg-transparent py-0 pl-3 pr-2 text-xs text-white shadow-none outline-none ring-0 ring-offset-0 placeholder:text-[var(--text-muted)] focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+            />
+            {/* Hairline divider — avoids UA / compound borders on the submit control */}
+            <span
+              className="w-px shrink-0 self-stretch bg-white/25"
+              aria-hidden
+            />
+            <button
+              type="submit"
+              aria-label="Search permits"
+              className="group flex h-10 w-10 shrink-0 items-center justify-center rounded-r-2xl border-0 bg-blue-600 text-white transition-colors duration-150 hover:bg-blue-700 focus:outline-none focus-visible:outline-none focus-visible:ring-0"
+            >
+              <SearchIcon className="opacity-95 group-hover:opacity-100" />
+            </button>
+          </form>
+        </div>
       </div>
 
       {/* `relative` only on this wrapper so the popover’s `top-full` sits under the icon, not the search field. */}
@@ -238,12 +292,12 @@ export function PermitFilterPanel() {
               : "Open filters"
           }
           onClick={toggle}
-          className="relative flex size-10 shrink-0 items-center justify-center rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-glass)] shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-md transition-colors hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40"
+          className="group relative flex size-10 shrink-0 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-md transition-colors duration-150 hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40"
         >
-          <FilterIcon className="text-white opacity-90" />
+          <FilterIcon className="relative z-[1] opacity-95" />
           {activeFacetCount > 0 ? (
             <span
-              className="absolute -right-1 -top-1 flex min-h-[1.125rem] min-w-[1.125rem] items-center justify-center rounded-full bg-blue-600 px-1 text-[9px] font-bold leading-none text-white"
+              className="absolute -right-1 -top-1 z-[2] flex min-h-[1.125rem] min-w-[1.125rem] items-center justify-center rounded-md bg-white px-1 text-[9px] font-bold leading-none text-neutral-950 ring-2 ring-blue-600"
               aria-hidden
             >
               {activeFacetCount}
@@ -259,9 +313,14 @@ export function PermitFilterPanel() {
             style={{
               minWidth: `min(100%, ${filterPopoverMinCh}ch)`,
             }}
-            className="absolute left-0 top-full z-[30] mt-2 flex max-h-[min(70vh,calc(100vh-6rem))] w-max min-w-0 max-w-[calc(100vw-2rem)] flex-col overflow-y-auto overflow-x-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-glass)] px-2.5 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-md [scrollbar-width:thin]"
+            className="absolute left-0 top-full z-[30] mt-2 w-max min-w-0 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-[var(--border-subtle)] shadow-[0_8px_32px_rgba(0,0,0,0.35)]"
           >
-          <div className="flex min-w-0 items-start justify-between gap-2 border-b border-white/10 pb-1.5">
+            <div
+              className="pointer-events-none absolute inset-0 rounded-xl bg-[var(--surface-glass-panel)] backdrop-blur-xl backdrop-saturate-150"
+              aria-hidden
+            />
+            <div className="relative z-[1] flex max-h-[min(70vh,calc(100vh-6rem))] flex-col overflow-y-auto overflow-x-hidden py-2 [scrollbar-width:thin]">
+          <div className="flex min-w-0 items-start justify-between gap-2 px-2.5 pb-1.5">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-wide text-white">
                 Filters
@@ -275,7 +334,7 @@ export function PermitFilterPanel() {
                 <button
                   type="button"
                   onClick={clearFacetFilters}
-                  className="rounded-md px-2 py-1.5 text-[10px] font-semibold text-white underline-offset-2 transition-colors hover:bg-white/15 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40"
+                  className="rounded-md bg-blue-600 px-2.5 py-1.5 text-[10px] font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40"
                 >
                   Clear filters
                 </button>
@@ -284,14 +343,18 @@ export function PermitFilterPanel() {
                 type="button"
                 onClick={close}
                 aria-label="Close filter panel"
-                className="flex size-8 shrink-0 items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40"
+                className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white transition-colors hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/40"
               >
                 <CloseIcon />
               </button>
             </div>
           </div>
+          <div
+            className="h-px shrink-0 bg-[var(--divider-subtle)]"
+            aria-hidden
+          />
 
-          <div className="mt-1.5 min-w-0 w-full">
+          <div className="mt-1.5 min-w-0 w-full px-2.5">
             <label
               htmlFor={statusId}
               className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]"
@@ -319,7 +382,7 @@ export function PermitFilterPanel() {
             </FacetedSelect>
           </div>
 
-          <div className="mt-1.5 min-w-0 w-full">
+          <div className="mt-1.5 min-w-0 w-full px-2.5">
             <label
               htmlFor={typeId}
               className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]"
@@ -346,7 +409,7 @@ export function PermitFilterPanel() {
             </FacetedSelect>
           </div>
 
-          <div className="mt-1.5 min-w-0 w-full">
+          <div className="mt-1.5 min-w-0 w-full px-2.5">
             <label
               htmlFor={districtId}
               className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]"
@@ -376,7 +439,7 @@ export function PermitFilterPanel() {
             </FacetedSelect>
           </div>
 
-          <div className="mt-1.5 min-w-0 w-full pb-0.5">
+          <div className="mt-1.5 min-w-0 w-full px-2.5 pb-0.5">
             <label
               htmlFor={stageId}
               className="text-[10px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]"
@@ -402,6 +465,7 @@ export function PermitFilterPanel() {
               ))}
             </FacetedSelect>
           </div>
+            </div>
         </div>
         ) : null}
       </div>

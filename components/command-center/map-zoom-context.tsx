@@ -2,7 +2,7 @@
 
 import type { MapChromeBoundsContextValue } from "@/components/command-center/map-chrome-bounds-context";
 import { useMapChromeBoundsOptional } from "@/components/command-center/map-chrome-bounds-context";
-import type { PointerEvent as ReactPointerEvent } from "react";
+import type { PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import {
   createContext,
   useCallback,
@@ -173,7 +173,18 @@ type MapZoomContextValue = {
 
 const MapZoomContext = createContext<MapZoomContextValue | null>(null);
 
-export function MapZoomProvider({ children }: { children: React.ReactNode }) {
+type MapZoomProviderProps = {
+  children: ReactNode;
+  /**
+   * Map / static background that should **not** sit under the permit-card `scale()` layer.
+   * Mapbox GL often renders a blank canvas if any ancestor has a CSS transform; pan uses
+   * `left`/`top` instead of `translate3d` so this layer stays WebGL-safe. Overlays still
+   * scale when a permit card is focused.
+   */
+  basemap?: ReactNode;
+};
+
+export function MapZoomProvider({ basemap, children }: MapZoomProviderProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   /** Zoom origin % must be measured against this layer (same box `transform-origin` uses). */
   const scaleLayerRef = useRef<HTMLDivElement>(null);
@@ -418,32 +429,49 @@ export function MapZoomProvider({ children }: { children: React.ReactNode }) {
       {/* Clips the scaled map so it does not spill past the screen edge. */}
       <div ref={mapContainerRef} className="absolute inset-0 overflow-hidden">
         {/*
-          Oversized pan layer: translating a viewport-sized layer exposed shell/void at the
-          edges. Extra size (2× max drift per axis) keeps map pixels under the clip while panning.
+          Oversized pan layer: `left`/`top` (not `translate3d`) so Mapbox WebGL is not under a
+          transform. Extra size (2× max drift per axis) keeps pixels under the clip while panning.
         */}
         <div
-          className="absolute [backface-visibility:hidden] will-change-transform motion-reduce:transition-none"
+          className="absolute [backface-visibility:hidden] motion-reduce:transition-none"
           style={{
             width: `${panLayerSpanPct}%`,
             height: `${panLayerSpanPct}%`,
-            left: `${-overscanPct}%`,
-            top: `${-overscanPct}%`,
-            transform: `translate3d(${effectivePan.x}px, ${effectivePan.y}px, 0)`,
+            left: `calc(${-overscanPct}% + ${effectivePan.x}px)`,
+            top: `calc(${-overscanPct}% + ${effectivePan.y}px)`,
             transition: isManualPanning
               ? "none"
-              : `transform ${MAP_PAN_TRANSITION_MS}ms cubic-bezier(0.45, 0, 0.55, 1)`,
+              : `left ${MAP_PAN_TRANSITION_MS}ms cubic-bezier(0.45, 0, 0.55, 1), top ${MAP_PAN_TRANSITION_MS}ms cubic-bezier(0.45, 0, 0.55, 1)`,
+            willChange: isManualPanning ? undefined : "left, top",
           }}
         >
-          <div
-            ref={scaleLayerRef}
-            className="absolute inset-0 will-change-transform transition-transform duration-500 ease-out"
-            style={{
-              transformOrigin,
-              transform: isZoomed ? `scale(${MAP_FOCUS_ZOOM})` : "scale(1)",
-            }}
-          >
-            {children}
-          </div>
+          {basemap != null ? (
+            <>
+              <div className="absolute inset-0 z-0">{basemap}</div>
+              <div
+                ref={scaleLayerRef}
+                className="absolute inset-0 z-[1] will-change-transform transition-transform duration-500 ease-out"
+                style={{
+                  transformOrigin,
+                  /* `none` when idle — `scale(1)` still counts as a transform and can blank WebGL. */
+                  transform: isZoomed ? `scale(${MAP_FOCUS_ZOOM})` : "none",
+                }}
+              >
+                {children}
+              </div>
+            </>
+          ) : (
+            <div
+              ref={scaleLayerRef}
+              className="absolute inset-0 will-change-transform transition-transform duration-500 ease-out"
+              style={{
+                transformOrigin,
+                transform: isZoomed ? `scale(${MAP_FOCUS_ZOOM})` : "none",
+              }}
+            >
+              {children}
+            </div>
+          )}
         </div>
       </div>
     </MapZoomContext.Provider>
