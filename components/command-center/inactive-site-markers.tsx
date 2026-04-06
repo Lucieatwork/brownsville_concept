@@ -194,9 +194,10 @@ function PermitHealthBreakdown({
 }) {
   const { health_score: hs } = detail;
   const composite = clampHealthScore(hs.composite);
+  const scoreColor = factorBarFillColor(composite);
   const bandClass = subpanel
-    ? "mt-0 text-xs font-medium text-white"
-    : "mt-1 text-[11px] font-medium text-white";
+    ? "mt-0 text-[18pt] font-medium text-white"
+    : "mt-1 text-[18pt] font-medium text-white";
   /* Factor row (label + % wt · score) and list copy below: +1pt vs rest of permit card labels */
   const rowText = subpanel
     ? "text-[calc(11px+1pt)]"
@@ -205,6 +206,96 @@ function PermitHealthBreakdown({
     ? "text-[calc(11px+1pt)] leading-relaxed"
     : "text-[calc(10px+2pt)] leading-relaxed";
   const sectionLabel = "text-[calc(10px+2pt)] font-bold uppercase text-white";
+
+  if (subpanel) {
+    return (
+      <div className="flex flex-col text-white">
+        <div className="px-5">
+          <div className="flex items-center justify-between rounded-xl border border-white/6 bg-white/[0.03] px-4 py-[14px]">
+            <p className="text-[18pt] font-semibold text-white">{hs.bandLabel}</p>
+            <div
+              className="flex size-12 shrink-0 flex-col items-center justify-center rounded-full border-2 text-center"
+              style={{
+                borderColor: `color-mix(in srgb, ${scoreColor} 50%, transparent)`,
+                backgroundColor: `color-mix(in srgb, ${scoreColor} 25%, transparent)`,
+              }}
+              aria-label={`Permit health score ${composite} out of 100, ${hs.bandLabel}`}
+            >
+              <span
+                className="text-lg font-bold leading-none tabular-nums"
+                style={{ color: scoreColor }}
+              >
+                {composite}
+              </span>
+              <span className="mt-0.5 text-[9px] font-medium leading-none text-white">
+                /100
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <ul className="mt-[10px]" aria-label="Health score factors">
+          {hs.factors.map((factor, index) => (
+            <li
+              key={factor.id}
+              className={`px-5 py-[10px] ${index === 0 ? "" : "border-t border-white/6"}`}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <span className="min-w-0 text-xs font-medium text-white/85">
+                  {factor.label}
+                </span>
+                <span className="shrink-0 text-[11px] font-normal tabular-nums text-white/60">
+                  {Math.round(factor.weight * 100)}% wt ·{" "}
+                  {clampHealthScore(factor.score)}
+                </span>
+              </div>
+              <div className="mt-1 h-1 w-full overflow-hidden rounded-[2px] bg-white">
+                <div
+                  className="h-full rounded-[2px] transition-[width] duration-300"
+                  style={{
+                    width: `${clampHealthScore(factor.score)}%`,
+                    backgroundColor: factorBarFillColor(factor.score),
+                  }}
+                />
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        {hs.blockingReasons.length > 0 ? (
+          <div className="border-t border-white/6 px-5 py-[14px]">
+            <p className="text-[11px] font-bold uppercase tracking-[0.55px] text-white">
+              Blocking reasons
+            </p>
+            <ul className="mt-2 flex flex-col gap-2">
+              {hs.blockingReasons.map((reason) => (
+                <li key={reason} className="flex items-start gap-2 text-xs leading-[1.6] text-white">
+                  <span className="mt-[0.42rem] block size-1 shrink-0 rounded-full bg-white/90" />
+                  <span>{reason}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+
+        {hs.recommendedActions.length > 0 ? (
+          <div className="px-5 pb-5">
+            <p className="text-[11px] font-bold uppercase tracking-[0.55px] text-white">
+              Recommended actions
+            </p>
+            <ol className="mt-2 flex flex-col gap-2">
+              {hs.recommendedActions.map((action, index) => (
+                <li key={action} className="flex items-start gap-2 text-xs leading-[1.6] text-white">
+                  <span className="shrink-0">{index + 1}.</span>
+                  <span>{action}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-lg border border-[var(--border-subtle)] bg-black/20 px-3 py-3">
@@ -220,8 +311,8 @@ function PermitHealthBreakdown({
         <div
           className={`flex shrink-0 flex-col items-center justify-center rounded-full border-2 border-solid text-center ${subpanel ? "size-[3.5rem]" : "size-14"}`}
           style={{
-            borderColor: factorBarFillColor(composite),
-            backgroundColor: `color-mix(in srgb, ${factorBarFillColor(composite)} 35%, transparent)`,
+            borderColor: scoreColor,
+            backgroundColor: `color-mix(in srgb, ${scoreColor} 35%, transparent)`,
           }}
           aria-label={`Permit health score ${composite} out of 100, ${hs.bandLabel}`}
         >
@@ -292,47 +383,73 @@ function PermitHealthBreakdown({
 function PermitJourneyCompact({
   detail,
   hideTitle = false,
-  large = false,
 }: {
   detail: PermitDetailRecord;
   hideTitle?: boolean;
-  large?: boolean;
 }) {
-  const stepText = large
-    ? "text-xs leading-relaxed"
-    : "text-[11px] leading-relaxed";
-  const detailText = large
-    ? "text-[11px] text-white/80"
-    : "text-[calc(10px+1pt)] text-white/80";
-
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       {!hideTitle ? (
-        <p className="text-[11px] font-semibold text-white">Permit journey</p>
+        <p className="px-5 text-base font-bold text-white">Permit journey</p>
       ) : null}
-      <ol className="flex flex-col gap-2 border-l border-[var(--border-subtle)] pl-3">
-        {detail.journey.map((step) => {
-          const mark =
-            step.status === "complete"
-              ? "text-white/55 line-through decoration-white/35"
-              : step.status === "current"
-                ? "font-semibold text-white"
-                : "text-white/45";
+      <ol className="flex flex-col">
+        {detail.journey.map((step, index) => {
+          const isFirstStep = index === 0;
+          const isLastStep = index === detail.journey.length - 1;
+          const isCurrentStep = step.status === "current";
+          const isUpcomingStep = step.status === "upcoming";
+
+          // Match the Figma timeline by giving each state its own weight,
+          // contrast, and dot size.
+          const labelClass = isCurrentStep
+            ? "font-bold text-white"
+            : isUpcomingStep
+              ? "font-normal text-white/35"
+              : "font-medium text-white/70";
+          const detailClass = isCurrentStep
+            ? "font-semibold text-white/70"
+            : isUpcomingStep
+              ? "font-normal text-white/35"
+              : "font-normal text-white/50";
+          const dotClass = isCurrentStep
+            ? "size-2 bg-white"
+            : isUpcomingStep
+              ? "size-[6px] bg-white/12"
+              : "size-[6px] bg-[#24d6a5]";
+
           return (
-            <li key={step.id} className={`${stepText} ${mark}`}>
-              <span className="sr-only">
-                {step.status === "complete"
-                  ? "Completed: "
-                  : step.status === "current"
-                    ? "Current: "
-                    : "Upcoming: "}
-              </span>
-              {step.label}
-              {step.detail ? (
-                <span className={`mt-0.5 block font-normal ${detailText}`}>
-                  {step.detail}
+            <li key={step.id} className="flex items-start gap-[14px] px-5">
+              <div className="flex w-3 shrink-0 self-stretch flex-col items-center">
+                <div
+                  className={`w-[2px] flex-1 ${isFirstStep ? "bg-transparent" : isUpcomingStep ? "bg-white/10" : "bg-white/20"}`}
+                  aria-hidden
+                />
+                <span
+                  className={`block shrink-0 rounded-full ${dotClass}`}
+                  aria-hidden
+                />
+                <div
+                  className={`w-[2px] flex-1 ${isLastStep ? "bg-transparent" : isCurrentStep ? "bg-white/15" : "bg-white/20"}`}
+                  aria-hidden
+                />
+              </div>
+              <div className="min-w-0 flex-1 pb-3">
+                <span className="sr-only">
+                  {step.status === "complete"
+                    ? "Completed: "
+                    : step.status === "current"
+                      ? "Current: "
+                      : "Upcoming: "}
                 </span>
-              ) : null}
+                <p className={`text-[14px] leading-[1.4] ${labelClass}`}>
+                  {step.label}
+                </p>
+                {step.detail ? (
+                  <p className={`mt-0.5 text-xs leading-[1.5] ${detailClass}`}>
+                    {step.detail}
+                  </p>
+                ) : null}
+              </div>
             </li>
           );
         })}
@@ -348,22 +465,43 @@ function PermitReviewsList({
   detail: PermitDetailRecord;
   large?: boolean;
 }) {
-  const boxText = large
-    ? "text-[11px] leading-relaxed"
-    : "text-[calc(10px+1pt)] leading-relaxed";
+  if (!large) {
+    return (
+      <ul className="flex flex-col gap-2">
+        {detail.reviews.map((r, index) => (
+          <li
+            key={`${r.department}-${r.status}-${index}`}
+            className="rounded-lg bg-black/20 px-3 py-2 text-[calc(10px+1pt)] leading-relaxed text-white"
+          >
+            <span className="font-semibold text-white">{r.department}</span>
+            {" · "}
+            {r.status}
+            <span className="text-white/75"> · {r.cycles} cycles</span>
+            {r.detail ? (
+              <span className="mt-1 block text-white/80">{r.detail}</span>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
   return (
-    <ul className="flex flex-col gap-2">
+    <ul className="flex flex-col gap-3 px-5 pb-3">
       {detail.reviews.map((r, index) => (
         <li
           key={`${r.department}-${r.status}-${index}`}
-          className={`rounded-lg bg-black/20 px-3 py-2 text-white ${boxText}`}
+          className="rounded-[10px] border border-white/8 bg-white/[0.04] px-4 py-3 text-white"
         >
-          <span className="font-semibold text-white">{r.department}</span>
-          {" · "}
-          {r.status}
-          <span className="text-white/75"> · {r.cycles} cycles</span>
+          <p className="text-xs leading-[1.55] text-white/70">
+            <span className="font-bold text-white">{r.department}</span>
+            <span className="text-white/70"> · {r.status}</span>
+            <span className="text-white/70"> · {r.cycles} cycles</span>
+          </p>
           {r.detail ? (
-            <span className="mt-1 block text-white/80">{r.detail}</span>
+            <p className="mt-1 text-[11px] leading-[1.5] text-white/70">
+              {r.detail}
+            </p>
           ) : null}
         </li>
       ))}
@@ -378,22 +516,183 @@ function PermitInspectionsList({
   detail: PermitDetailRecord;
   large?: boolean;
 }) {
-  const rowText = large
-    ? "text-xs leading-relaxed"
-    : "text-[11px] leading-relaxed";
+  if (!large) {
+    return (
+      <ul className="flex flex-col gap-2">
+        {detail.inspections.map((row) => (
+          <li key={row.type} className="text-[11px] leading-relaxed text-white">
+            <span className="font-semibold">{row.type}</span>
+            {": "}
+            {row.status}
+            {row.detail && row.detail !== "—" ? (
+              <span className="text-white/80"> — {row.detail}</span>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  function getInspectionStatusDisplay(status: string) {
+    const normalizedStatus = status.toLowerCase();
+
+    // Convert verbose dataset statuses into the compact badge copy from Figma.
+    if (normalizedStatus.includes("fail")) {
+      return {
+        label: "Failed",
+        summaryPrefix: "Re-inspect needed",
+        className:
+          "border-[#ef4444] bg-[rgba(239,68,68,0.15)] text-[#ef4444]",
+      };
+    }
+
+    if (normalizedStatus.includes("hold")) {
+      return {
+        label: "On hold",
+        summaryPrefix: "",
+        className:
+          "border-[color:var(--status-risk-watch,#eab308)] bg-[rgba(234,179,8,0.15)] text-[color:var(--status-risk-watch,#eab308)]",
+      };
+    }
+
+    if (normalizedStatus.includes("schedule")) {
+      return {
+        label: "Not scheduled",
+        summaryPrefix: "",
+        className:
+          "border-transparent bg-[rgba(148,163,184,0.14)] text-[color:var(--kpi-neutral,#94a3b8)]",
+      };
+    }
+
+    if (normalizedStatus.includes("pass")) {
+      return {
+        label: "Passed",
+        summaryPrefix: "",
+        className: "border-[#24d6a5] bg-[rgba(36,214,165,0.15)] text-[#24d6a5]",
+      };
+    }
+
+    return {
+      label: status,
+      summaryPrefix: "",
+      className: "border-white/10 bg-white/5 text-white/80",
+    };
+  }
+
   return (
-    <ul className="flex flex-col gap-2">
-      {detail.inspections.map((row) => (
-        <li key={row.type} className={`text-white ${rowText}`}>
-          <span className="font-semibold">{row.type}</span>
-          {": "}
-          {row.status}
-          {row.detail && row.detail !== "—" ? (
-            <span className="text-white/80"> — {row.detail}</span>
-          ) : null}
-        </li>
-      ))}
+    <ul className="flex flex-col gap-3 px-5 pb-3">
+      {detail.inspections.map((row) => {
+        const statusDisplay = getInspectionStatusDisplay(row.status);
+        const hasSupportingText = row.detail && row.detail !== "—";
+        const summaryText = statusDisplay.summaryPrefix
+          ? hasSupportingText
+            ? `${statusDisplay.summaryPrefix} — ${row.detail}`
+            : statusDisplay.summaryPrefix
+          : hasSupportingText
+            ? row.detail
+            : "";
+
+        return (
+          <li
+            key={row.type}
+            className="rounded-[10px] border border-white/8 bg-white/[0.04] px-4 py-3 text-white"
+          >
+            <div className="flex items-center gap-2">
+              <p className="min-w-0 flex-1 text-xs font-normal text-white">
+                {row.type}
+              </p>
+              <span
+                className={`inline-flex h-6 shrink-0 items-center justify-center rounded-[8px] border px-3 text-[9px] font-bold uppercase tracking-[0.45px] ${statusDisplay.className}`}
+              >
+                {statusDisplay.label}
+              </span>
+            </div>
+            {summaryText ? (
+              <p className="mt-1.5 text-[11px] leading-[1.55] text-white/70">
+                {summaryText}
+              </p>
+            ) : null}
+          </li>
+        );
+      })}
     </ul>
+  );
+}
+
+function DocumentOpenIcon() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+      className="shrink-0 text-white"
+    >
+      <path
+        d="M7 3.75h7.5L19.25 8.5V14"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M14 3.75V9h5.25"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M8.75 13.75H4.75v6h6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M10.75 19.75l5.5-5.5"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function RequiredUploadIcon() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+      className="shrink-0 text-white"
+    >
+      <path
+        d="M7.25 18.25H6.5a3.75 3.75 0 1 1 .9-7.39A5.25 5.25 0 0 1 17.43 9a4 4 0 1 1 .57 7.96h-.75"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12 10.25v8"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9.25 13l2.75-2.75L14.75 13"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 
@@ -404,18 +703,57 @@ function PermitDocumentsList({
   detail: PermitDetailRecord;
   large?: boolean;
 }) {
-  const rowText = large
-    ? "text-xs leading-relaxed"
-    : "text-[11px] leading-relaxed";
+  if (!large) {
+    return (
+      <ul className="flex flex-col gap-2.5">
+        {detail.documents.map((doc) => (
+          <li key={doc.name} className="text-[11px] leading-relaxed text-white">
+            <span className="font-semibold">{doc.name}</span>
+            <span className="text-white/80"> — {doc.status}</span>
+            {doc.detail ? (
+              <span className="mt-0.5 block text-white/75">{doc.detail}</span>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  function getDocumentSummary(status: string, detail: string | undefined) {
+    if (status.toLowerCase().includes("required upload")) {
+      return "Required file missing";
+    }
+
+    return detail ?? status;
+  }
+
+  function shouldShowUploadIcon(status: string) {
+    return status.toLowerCase().includes("required upload");
+  }
+
   return (
-    <ul className="flex flex-col gap-2.5">
+    <ul className="flex flex-col gap-1 px-5 pb-4">
       {detail.documents.map((doc) => (
-        <li key={doc.name} className={`text-white ${rowText}`}>
-          <span className="font-semibold">{doc.name}</span>
-          <span className="text-white/80"> — {doc.status}</span>
-          {doc.detail ? (
-            <span className="mt-0.5 block text-white/75">{doc.detail}</span>
-          ) : null}
+        <li
+          key={doc.name}
+          className="flex items-start gap-2 py-[10px] text-white"
+        >
+          <div className="min-w-0 flex-1">
+            <p className="text-xs leading-[1.55] text-white/70">
+              <span className="font-bold text-white">{doc.name}</span>
+              {!shouldShowUploadIcon(doc.status) ? (
+                <span className="text-white/70"> — {doc.status}</span>
+              ) : null}
+            </p>
+            <p className="mt-0.5 text-[11px] leading-[1.5] text-white/70">
+              {getDocumentSummary(doc.status, doc.detail)}
+            </p>
+          </div>
+          {shouldShowUploadIcon(doc.status) ? (
+            <RequiredUploadIcon />
+          ) : (
+            <DocumentOpenIcon />
+          )}
         </li>
       ))}
     </ul>
@@ -529,13 +867,24 @@ function SiteHoverInsightCard({
   useMapPanForOpenPermitCard(shellRef, isOpen && Boolean(mapZoom), drillSection);
 
   const drillPanelId = `permit-drill-${detail.id}`;
+  const isJourneyDrillPanel = drillSection === "journey";
+  const isHealthDrillPanel = drillSection === "health";
+  const isReviewsDrillPanel = drillSection === "reviews";
+  const isInspectionsDrillPanel = drillSection === "inspections";
+  const isDocumentsDrillPanel = drillSection === "documents";
+  const isFigmaStyledDrillPanel =
+    isJourneyDrillPanel ||
+    isHealthDrillPanel ||
+    isReviewsDrillPanel ||
+    isInspectionsDrillPanel ||
+    isDocumentsDrillPanel;
 
   function renderDrillBody(section: PermitCardDrillSection) {
     switch (section) {
       case "health":
         return <PermitHealthBreakdown detail={detail} subpanel />;
       case "journey":
-        return <PermitJourneyCompact detail={detail} hideTitle large />;
+        return <PermitJourneyCompact detail={detail} hideTitle />;
       case "reviews":
         return <PermitReviewsList detail={detail} large />;
       case "inspections":
@@ -839,22 +1188,48 @@ function SiteHoverInsightCard({
           id={drillPanelId}
           role="region"
           aria-label={DRILL_SECTION_LABELS[drillSection]}
-          className="w-full max-h-[min(52vh,calc(0.62*_(100vh_-_3rem)))] min-w-0 overflow-y-auto overflow-x-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-glass-panel)] p-4 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-md sm:w-[min(28rem,calc(100vw-1.25rem))]"
+          className={`w-full max-h-[min(52vh,calc(0.62*_(100vh_-_3rem)))] min-w-0 overflow-y-auto overflow-x-hidden rounded-2xl border shadow-[0_8px_32px_rgba(0,0,0,0.35)] sm:w-[min(28rem,calc(100vw-1.25rem))] ${
+            isFigmaStyledDrillPanel
+              ? "border-white/8 bg-[#151a24] backdrop-blur-xl"
+              : "border-[var(--border-subtle)] bg-[var(--surface-glass-panel)] p-4 backdrop-blur-md"
+          }`}
         >
-          <div className="-mx-4 flex items-start justify-between gap-2 border-b border-[var(--divider-subtle)] px-4 pb-2.5">
-            <h3 className="text-sm font-bold text-white">
+          <div
+            className={
+              isFigmaStyledDrillPanel
+                ? isHealthDrillPanel
+                  ? "sticky top-0 z-[1] flex items-center justify-between gap-2 border-b border-white/5 bg-[#0d1117] px-5 pb-[14px] pt-[18px]"
+                  : "flex items-center justify-between gap-2 border-b border-white/5 bg-[#0d1117] px-5 pb-[14px] pt-[18px]"
+                : "-mx-4 flex items-start justify-between gap-2 border-b border-[var(--divider-subtle)] px-4 pb-2.5"
+            }
+          >
+            <h3
+              className={
+                isFigmaStyledDrillPanel
+                  ? "text-base font-bold text-white"
+                  : "text-sm font-bold text-white"
+              }
+            >
               {DRILL_SECTION_LABELS[drillSection]}
             </h3>
             <button
               ref={drillCloseRef}
               type="button"
               onClick={() => onDrillSectionChange(null)}
-              className="shrink-0 bg-transparent px-0 py-0.5 text-[calc(10px+1pt)] font-semibold text-white underline decoration-white/70 underline-offset-2 transition-[text-decoration-color,text-decoration-thickness] hover:decoration-white hover:decoration-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
+              className={`shrink-0 bg-transparent px-0 underline underline-offset-2 transition-[text-decoration-color,text-decoration-thickness] hover:decoration-white hover:decoration-2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 ${
+                isFigmaStyledDrillPanel
+                  ? "py-0 text-xs font-medium text-white/70 decoration-white/45"
+                  : "py-0.5 text-[calc(10px+1pt)] font-semibold text-white decoration-white/70"
+              }`}
             >
               Close
             </button>
           </div>
-          <div className="mt-3 text-white">
+          <div
+            className={
+              isFigmaStyledDrillPanel ? "pt-4 text-white" : "mt-3 text-white"
+            }
+          >
             {renderDrillBody(drillSection)}
           </div>
         </aside>

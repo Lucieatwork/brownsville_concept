@@ -51,22 +51,25 @@ function RefreshIcon({ className }: { className?: string }) {
   );
 }
 
-/** Chevron up — same stroke weight as other command-center icons. */
-function ChevronUpIcon({ className }: { className?: string }) {
+/** Expand-corner icon matches the Figma chrome more closely than a chevron. */
+function ExpandCornerIcon({ className }: { className?: string }) {
   return (
     <svg
       className={className}
-      width={18}
-      height={18}
+      width={24}
+      height={24}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.75}
+      strokeWidth={2}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden
     >
-      <path d="m18 15-6-6-6 6" />
+      <path d="M14.5 5.5H18.5V9.5" />
+      <path d="M18.5 5.5L13.5 10.5" />
+      <path d="M9.5 18.5H5.5V14.5" />
+      <path d="M5.5 18.5L10.5 13.5" />
     </svg>
   );
 }
@@ -99,74 +102,77 @@ function highlightDotClasses(tone: AIBriefHighlightTone): string {
 export function AIBriefChip({ summary, onCollapse }: AIBriefChipProps) {
   return (
     <div
-      className={`${montserrat.className} relative flex w-full flex-col overflow-hidden rounded-[1.75rem] border border-[var(--border-subtle)] shadow-[0_8px_32px_rgba(0,0,0,0.35)]`}
+      className={`${montserrat.className} relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/8 shadow-[0_8px_32px_rgba(0,0,0,0.35)]`}
     >
-      {/* Same darker glass as the map permit card — single frosted plate behind content */}
       <div
-        className="pointer-events-none absolute inset-0 rounded-[1.75rem] bg-[color-mix(in_srgb,var(--surface-glass-panel)_88%,#05070a)] backdrop-blur-xl backdrop-saturate-150"
+        className="pointer-events-none absolute inset-0 rounded-2xl bg-[rgba(12,16,28,0.92)] backdrop-blur-[12px]"
         aria-hidden
       />
-      <div className="relative z-[1] flex w-full flex-col gap-3 px-4 py-3.5">
+      <div className="relative z-[1] flex w-full flex-col gap-3 px-4 pb-5 pt-[14px]">
         <div className="flex items-center justify-between gap-3">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <span className="inline-flex min-h-6 w-fit shrink-0 items-center justify-center rounded-md bg-white px-2.5 py-1 text-center text-[11px] font-medium uppercase leading-none tracking-wide text-neutral-950">
+            <span className="inline-flex min-h-6 w-fit shrink-0 items-center justify-center rounded-md bg-white px-[10px] py-1 text-center text-[11px] font-medium uppercase leading-none tracking-wide text-[#0a0a0a]">
               AI brief
             </span>
-            <p className="inline-flex min-h-6 min-w-0 items-center text-[12px] leading-none tracking-wide text-[var(--text-muted)] sm:text-[13px]">
+            <p className="inline-flex min-h-6 min-w-0 items-center text-xs leading-none text-white/60">
               {summary.updatedAtLabel}
             </p>
-          </div>
-          <div className="flex shrink-0 items-center gap-1">
-            <span className="inline-flex h-8 w-8 items-center justify-center text-white" title="Summary refresh">
-              <RefreshIcon className="opacity-90" />
+            <span
+              className="inline-flex h-4 w-4 items-center justify-center text-white/75"
+              title="Summary refresh"
+              aria-hidden
+            >
+              <RefreshIcon className="h-4 w-4" />
             </span>
+          </div>
+          <div className="flex shrink-0 items-center">
             {onCollapse ? (
               <button
                 type="button"
                 onClick={onCollapse}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-white transition-[opacity,background-color] hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
+                className="flex h-6 w-6 items-center justify-center text-white transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50"
                 aria-label="Collapse AI brief"
               >
-                <ChevronUpIcon className="opacity-90" />
+                <ExpandCornerIcon className="h-6 w-6 opacity-90" />
               </button>
             ) : null}
           </div>
         </div>
         <div
-          className="h-px w-[calc(100%+2rem)] shrink-0 bg-[var(--divider-subtle)] -mx-4"
+          className="-mx-4 h-px w-[calc(100%+2rem)] shrink-0 bg-white/6"
           aria-hidden
         />
         <div className="min-w-0">
-          <p className="break-words text-[15px] font-medium leading-relaxed tracking-[-0.01em] text-[var(--text-primary)] sm:text-[16px]">
+          <p className="break-words text-base font-medium leading-[23px] tracking-[-0.15px] text-white/95">
             {summary.headline}
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2 pb-2">
           {summary.metrics.map((metric) => (
             <div
               key={metric.label}
-              className={`flex min-h-[5.25rem] flex-col items-center justify-center rounded-2xl border px-2.5 py-2 text-center ${metricToneClasses(metric.tone)}`}
+              className={`flex min-h-[84px] flex-col items-center justify-center rounded-2xl border px-[10px] py-3 text-center ${metricToneClasses(metric.tone)}`}
             >
-              <p className="text-[1.45rem] font-semibold leading-none tracking-[-0.03em] sm:text-[1.6rem]">
+              <p className="text-2xl font-semibold leading-none tracking-[-0.72px]">
                 {metric.value}
               </p>
-              <p className="mt-2 text-[0.68rem] font-semibold uppercase leading-tight tracking-[0.18em] text-white/78">
+              <p className="mt-2 text-[10px] font-semibold uppercase leading-tight tracking-[1.5px] text-white/78">
                 {metric.label}
               </p>
             </div>
           ))}
         </div>
 
-        <ul className="flex flex-col divide-y divide-[var(--divider-subtle)]">
+        <ul className="flex flex-col divide-y divide-white/6 pb-1">
           {summary.highlights.map((highlight) => (
             <li key={highlight.permitId} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
               <span
-                className={`mt-[0.38rem] size-2 shrink-0 rounded-full ${highlightDotClasses(highlight.tone)}`}
+                className={`mt-[0.42rem] size-2 shrink-0 rounded-full ${highlightDotClasses(highlight.tone)}`}
                 aria-hidden
               />
-              <p className="min-w-0 text-[13px] leading-relaxed text-[var(--text-secondary)] sm:text-[13.5px]">
-                <span className="font-semibold tracking-[-0.01em] text-white">
+              <p className="min-w-0 text-[13px] leading-[22px] text-white/70">
+                <span className="font-semibold text-white">
                   {highlight.permitId}
                 </span>
                 {" — "}

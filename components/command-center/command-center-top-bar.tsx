@@ -92,7 +92,7 @@ export function CommandCenterTopBar({ summary }: CommandCenterTopBarProps) {
         </div>
         <div
           ref={chrome?.rightStackRef}
-          className={`pointer-events-auto flex w-full max-w-sm shrink-0 flex-col items-end gap-2 sm:max-w-md xl:max-w-lg ${montserrat.className}`}
+          className={`pointer-events-auto flex w-full max-w-[36rem] shrink-0 flex-col items-end gap-2 ${montserrat.className}`}
         >
           {isBriefExpanded ? (
             <div className="min-w-0 w-full">
