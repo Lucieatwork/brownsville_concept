@@ -1,6 +1,9 @@
 "use client";
 
-import { AIBriefChip } from "@/components/command-center/ai-brief-chip";
+import {
+  AIBriefChip,
+  type AIBriefSummary,
+} from "@/components/command-center/ai-brief-chip";
 import { useMapChromeBoundsOptional } from "@/components/command-center/map-chrome-bounds-context";
 import { MapAiChatPanel } from "@/components/command-center/map-ai-chat-panel";
 import { PermitFilterPanel } from "@/components/command-center/permit-filter-panel";
@@ -57,8 +60,8 @@ const AI_STACK_FAB_CLASS =
   "group flex min-h-12 min-w-12 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-full bg-blue-600 px-2 text-white shadow-md transition-[background-color,transform] duration-200 ease-out hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white/50 active:scale-[0.97]";
 
 type CommandCenterTopBarProps = {
-  /** Short line from PRD (AI Brief short). */
-  summary: string;
+  /** Structured data for the richer live-summary card. */
+  summary: AIBriefSummary;
 };
 
 /**

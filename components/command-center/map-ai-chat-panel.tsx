@@ -116,7 +116,7 @@ export function MapAiChatPanel({ className, onCollapse }: MapAiChatPanelProps) {
               >
                 AI chat
               </span>
-              <span className="min-w-0 truncate text-sm text-white">
+              <span className="min-w-0 truncate text-[11px] tracking-wide text-[var(--text-muted)] sm:text-xs">
                 Demo preview
               </span>
             </div>
